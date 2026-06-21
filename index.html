@@ -1,0 +1,315 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tasqyn — AI flood early-warning for Kazakhstan's rivers</title>
+<meta name="description" content="Tasqyn forecasts monthly flood risk for snowmelt-driven rivers using XGBoost, calibrated probabilities and live Open-Meteo data. Honest validation: ROC-AUC 0.91." />
+<link rel="icon" href="assets/icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Archivo:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+<!-- topographic contours -->
+<div class="contours" aria-hidden="true">
+  <svg viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice">
+    <path d="M-50 120 C 300 60, 600 220, 900 140 S 1500 60, 1500 120"/>
+    <path d="M-50 220 C 320 150, 640 320, 940 230 S 1500 150, 1500 220"/>
+    <path d="M-50 330 C 280 260, 660 430, 980 330 S 1500 270, 1500 330"/>
+    <path d="M-50 450 C 360 380, 700 560, 1000 450 S 1500 390, 1500 450"/>
+    <path d="M-50 580 C 300 510, 680 680, 1020 580 S 1500 520, 1500 580"/>
+    <path d="M-50 710 C 340 640, 720 800, 1040 710 S 1500 650, 1500 710"/>
+    <path d="M-50 830 C 320 770, 700 910, 1060 830 S 1500 780, 1500 830"/>
+  </svg>
+</div>
+
+<!-- NAV -->
+<nav>
+  <div class="wrap">
+    <div class="brand">
+      <img class="mark" src="assets/icon.svg" alt="" />
+      <span>Tasqyn <small>ТАСҚЫН</small></span>
+    </div>
+    <div class="navlinks">
+      <a href="#problem">Problem</a>
+      <a href="#proof">Proof</a>
+      <a href="#physics">The signal</a>
+      <a href="#app">App</a>
+      <a href="#honest">Honesty</a>
+      <a href="#tech">Tech</a>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<header class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="eyebrow reveal">AI flood early-warning · Kazakhstan</div>
+      <h1 class="reveal d1">Know the flood<br/>before the <span class="kz">тасқын</span>.</h1>
+      <p class="lede reveal d2">Tasqyn forecasts the <b>monthly probability of flooding</b> for snowmelt-driven rivers — turning 30 years of data and live weather into an early warning that <b>ordinary people can act on</b>.</p>
+      <div class="cta-row reveal d3">
+        <a class="btn btn-primary" href="#proof">See the proof ↓</a>
+        <a class="btn btn-ghost" href="#app">Explore the app</a>
+      </div>
+    </div>
+
+    <!-- live instrument gauge -->
+    <div class="gauge-card reveal d2">
+      <span class="tag">FORECAST · ISHIM @ PETROPAVL</span>
+      <div class="gauge" style="position:relative">
+        <svg width="240" height="240" viewBox="0 0 280 280">
+          <circle class="ringbg" cx="140" cy="140" r="120"/>
+          <circle class="ringfg" id="heroRing" cx="140" cy="140" r="120"
+                  stroke-dasharray="753.98" stroke-dashoffset="753.98"/>
+        </svg>
+        <div class="val">
+          <b id="heroPct">0%</b>
+          <span>FLOOD RISK · APRIL</span>
+        </div>
+      </div>
+      <div class="gauge-meta">
+        <span>90% CI <b>55–93%</b></span>
+        <span>RISK <b style="color:var(--flood)">HIGH</b></span>
+        <span>peak season</span>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- METRIC TICKER (real numbers from metrics_honest.json) -->
+<div class="ticker">
+  <div class="wrap">
+    <div class="cell reveal"><div class="num">0.91</div><div class="lbl">ROC-AUC · honest</div></div>
+    <div class="cell reveal d1"><div class="num">10/14</div><div class="lbl">floods caught</div></div>
+    <div class="cell reveal d2"><div class="num">1/70</div><div class="lbl">false alarms</div></div>
+    <div class="cell reveal d3"><div class="num">6</div><div class="lbl">river basins</div></div>
+  </div>
+</div>
+
+<!-- PROBLEM -->
+<section id="problem">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">The problem</div>
+      <h2>Every spring, the snow melts — and the river rises.</h2>
+      <p>The Ishim (Esil) and neighbouring rivers flood almost every spring as the winter snowpack melts, displacing thousands and causing major damage across Northern Kazakhstan — the 2024 floods were among the worst in decades. Communities need lead time, not hindsight.</p>
+    </div>
+    <div class="cards cols-3">
+      <div class="card reveal"><span class="ic">❄️</span><h3>Snowmelt-driven</h3><p>Flood timing is set months ahead by how much snow fell over winter — a signal that already exists before the danger arrives.</p></div>
+      <div class="card reveal d1"><span class="ic">📉</span><h3>Late warnings</h3><p>Official alerts often arrive only as water rises. A month of lead time changes what families and emergency services can do.</p></div>
+      <div class="card reveal d2"><span class="ic">🫂</span><h3>For people</h3><p>Tasqyn exists to put a clear, honest risk number in the hands of the people who live along these rivers.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section id="proof">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Proof · honest evaluation</div>
+      <h2>We reject the perfect score.</h2>
+      <p>A naive split scores a suspicious ROC-AUC of 1.00. We treat that as a red flag, not a result — and report leave-one-year-out walk-forward numbers, where the model is retrained for every test year and never sees the future.</p>
+    </div>
+
+    <div class="split reveal">
+      <div class="verdict bad">
+        <div class="h">✕ Naive split — discarded</div>
+        <div class="big">1.00 / 1.00 / 1.00</div>
+        <p style="color:var(--muted);font-size:14px">12 test months, 2 events. Statistically meaningless — kept only as a teaching example.</p>
+        <ul>
+          <li>Test samples <b>12</b></li>
+          <li>Flood events <b>2</b></li>
+          <li>Verdict <b style="color:var(--flood)">not reliable</b></li>
+        </ul>
+      </div>
+      <div class="verdict good">
+        <div class="h">✓ Walk-forward — reported</div>
+        <div class="big">ROC-AUC 0.91</div>
+        <p style="color:var(--muted);font-size:14px">Leave-one-year-out over 2018–2024. The number we actually stand behind.</p>
+        <ul>
+          <li>Held-out months <b>84</b></li>
+          <li>PR-AUC <b>0.72</b></li>
+          <li>F1 (optimal) <b>0.80</b></li>
+          <li>Recall <b>10 / 14 floods</b></li>
+          <li>False alarms <b>1 / 70 months</b></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="cards cols-2 reveal" style="margin-top:22px">
+      <div class="figure">
+        <img src="assets/timeline_probability.png" alt="Predicted flood probability over time with actual events" />
+        <div class="cap">// predicted flood probability 1996–2024 · red dots = actual floods</div>
+      </div>
+      <div class="figure">
+        <img src="assets/naive_roc_curve.png" alt="ROC curve" />
+        <div class="cap">// ROC curve · confusion matrix below: TN 69 · FP 1 · FN 4 · TP 10</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PHYSICS -->
+<section id="physics">
+  <div class="wrap physics">
+    <div class="reveal">
+      <div class="eyebrow">The signal</div>
+      <h2 style="font-size:clamp(30px,4.5vw,52px);margin:14px 0 10px">It rediscovered the physics.</h2>
+      <p style="color:var(--muted)">With no hand-coded hydrology, the model learned that the strongest predictor of a spring flood is the <b style="color:var(--ink)">snow that fell four months earlier</b>. That's the documented snowmelt mechanism — strong evidence it captured real cause, not noise.</p>
+      <div class="bigstat" style="margin-top:24px">0.53</div>
+      <div class="mono" style="color:var(--muted);font-size:13px">importance of <b style="color:var(--cyan)">snow_cover_lag4</b></div>
+    </div>
+    <div class="bars reveal d1">
+      <div class="bar"><span class="name">snow_cover · lag 4mo</span><span class="track"><i class="fill" data-w="100"></i></span><span class="pct">.525</span></div>
+      <div class="bar"><span class="name">temperature · lag 3mo</span><span class="track"><i class="fill" data-w="67"></i></span><span class="pct">.350</span></div>
+      <div class="bar"><span class="name">river_level · roll 3mo</span><span class="track"><i class="fill" data-w="10"></i></span><span class="pct">.050</span></div>
+      <div class="bar"><span class="name">river_level_max · lag 6mo</span><span class="track"><i class="fill" data-w="6"></i></span><span class="pct">.032</span></div>
+      <div class="bar"><span class="name">snow_cover · roll sum 3mo</span><span class="track"><i class="fill" data-w="4"></i></span><span class="pct">.018</span></div>
+      <div class="figure" style="margin-top:8px">
+        <img src="assets/feature_importance.png" alt="Feature importance ranking" />
+        <div class="cap">// top-20 XGBoost feature importances</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE + BASINS -->
+<section id="basins" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Live · multi-basin</div>
+      <h2>Real forecasts, 1–3 months ahead.</h2>
+      <p>Tasqyn pulls live ERA5 weather from the free Open-Meteo archive (no API key) and forecasts the coming months for six basins. Because winter snow is already observed, the look-ahead leans on data that already exists.</p>
+    </div>
+    <div class="basins reveal">
+      <div class="basin"><span class="dot" style="color:var(--flood)"></span><div><div class="nm">Petropavl</div><div class="rv">Ishim (Esil) · KZ</div></div><span class="badge-anchor">ANCHOR</span></div>
+      <div class="basin"><span class="dot" style="color:var(--amber)"></span><div><div class="nm">Astana</div><div class="rv">Ishim (Esil) · KZ</div></div></div>
+      <div class="basin"><span class="dot" style="color:var(--flood)"></span><div><div class="nm">Atbasar</div><div class="rv">Zhabay · KZ</div></div></div>
+      <div class="basin"><span class="dot" style="color:var(--amber)"></span><div><div class="nm">Kokshetau</div><div class="rv">Chaglinka · KZ</div></div></div>
+      <div class="basin"><span class="dot" style="color:var(--flood)"></span><div><div class="nm">Oral (Uralsk)</div><div class="rv">Ural (Zhayyq) · KZ</div></div></div>
+      <div class="basin"><span class="dot" style="color:var(--safe)"></span><div><div class="nm">Kurgan</div><div class="rv">Tobol · RU</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- APP -->
+<section id="app">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">The app · Expo / React Native</div>
+      <h2>Built to be opened, not studied.</h2>
+      <p>A risk map of every basin, per-basin forecast with a confidence interval, push alerts for high risk, history and an offline mode. Everything you see comes straight from the model through the API.</p>
+    </div>
+
+    <div class="phones reveal">
+      <!-- MAP -->
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="map-mock">
+          <span class="pin" style="left:38%;top:34%;background:var(--flood)">78</span>
+          <span class="pin" style="left:60%;top:50%;background:var(--amber)">41</span>
+          <span class="pin" style="left:30%;top:62%;background:var(--flood)">71</span>
+          <span class="pin" style="left:72%;top:30%;background:var(--safe)">12</span>
+          <span class="pin" style="left:52%;top:72%;background:var(--amber)">38</span>
+        </div>
+        <div style="position:absolute;top:34px;left:16px;right:16px;background:rgba(4,16,26,.82);border:1px solid var(--line);border-radius:12px;padding:12px;z-index:3">
+          <div class="mono" style="font-size:11px;font-weight:700">PEAK RISK · NEXT 3 MONTHS</div>
+          <div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">● low&nbsp;&nbsp;● moderate&nbsp;&nbsp;● high</div>
+        </div>
+        <div class="tabbar" style="background:var(--deep);position:absolute;bottom:0;left:0;right:0;z-index:4"><span class="on">🗺️</span><span>🌊</span><span>🕑</span><span>⚙️</span></div>
+      </div></div>
+
+      <!-- FORECAST -->
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="s-head"><div class="s-title">Petropavl</div><div class="s-sub">Ishim (Esil)</div></div>
+        <div class="s-body">
+          <div class="mini-pill"><b class="on">Petropavl</b><b>Astana</b><b>Oral</b></div>
+          <div class="mini-gauge" style="position:relative">
+            <svg width="150" height="150" viewBox="0 0 150 150">
+              <circle cx="75" cy="75" r="62" fill="none" stroke="#16384a" stroke-width="11"/>
+              <circle cx="75" cy="75" r="62" fill="none" stroke="var(--flood)" stroke-width="11" stroke-linecap="round"
+                      stroke-dasharray="389.6" stroke-dashoffset="85.7" transform="rotate(-90 75 75)"/>
+            </svg>
+            <div class="v">78%</div>
+          </div>
+          <div class="mono" style="text-align:center;font-size:10px;color:var(--muted);margin-bottom:6px">90% CI 55–93% · HIGH</div>
+          <div class="fcast"><div class="top"><span class="mon">Apr 2027</span><span class="p" style="color:var(--flood)">78%</span></div><div class="tr"><div class="fl" style="width:78%;background:var(--flood)"></div></div></div>
+          <div class="fcast"><div class="top"><span class="mon">Mar 2027</span><span class="p" style="color:var(--amber)">44%</span></div><div class="tr"><div class="fl" style="width:44%;background:var(--amber)"></div></div></div>
+          <div class="fcast"><div class="top"><span class="mon">May 2027</span><span class="p" style="color:var(--amber)">36%</span></div><div class="tr"><div class="fl" style="width:36%;background:var(--amber)"></div></div></div>
+        </div>
+        <div class="tabbar"><span>🗺️</span><span class="on">🌊</span><span>🕑</span><span>⚙️</span></div>
+      </div></div>
+
+      <!-- HISTORY -->
+      <div class="phone"><div class="screen"><div class="notch"></div>
+        <div class="s-head"><div class="s-title">History</div><div class="s-sub">saved forecasts</div></div>
+        <div class="s-body">
+          <div class="fcast"><div class="top"><span class="mon">● Apr 2027 · Petropavl</span><span class="p" style="color:var(--flood)">78%</span></div></div>
+          <div class="fcast"><div class="top"><span class="mon">● Apr 2027 · Atbasar</span><span class="p" style="color:var(--flood)">71%</span></div></div>
+          <div class="fcast"><div class="top"><span class="mon">● Mar 2027 · Astana</span><span class="p" style="color:var(--amber)">41%</span></div></div>
+          <div class="fcast"><div class="top"><span class="mon">● Apr 2027 · Oral</span><span class="p" style="color:var(--amber)">49%</span></div></div>
+          <div class="fcast"><div class="top"><span class="mon">● May 2027 · Kurgan</span><span class="p" style="color:var(--safe)">12%</span></div></div>
+        </div>
+        <div class="tabbar"><span>🗺️</span><span>🌊</span><span class="on">🕑</span><span>⚙️</span></div>
+      </div></div>
+    </div>
+  </div>
+</section>
+
+<!-- HONEST BY DESIGN -->
+<section id="honest">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Honest by design</div>
+      <h2>The model tells you when not to trust it.</h2>
+      <p>Calibrated probabilities, confidence intervals, and an out-of-distribution guard are part of the contract — not an afterthought.</p>
+    </div>
+    <div class="cards cols-3">
+      <div class="card reveal"><span class="ic">🎯</span><h3>Calibrated</h3><p>Isotonic calibration fit on <i>out-of-sample</i> scores — a calibrated 70% means floods roughly 70% of the time.</p></div>
+      <div class="card reveal d1"><span class="ic">📐</span><h3>Confidence intervals</h3><p>A 15-model bootstrap ensemble gives a 90% prediction interval on every forecast.</p></div>
+      <div class="card reveal d2"><span class="ic">🛡️</span><h3>OOD guard</h3><p>If live inputs fall outside the training range, or a basin is scored by transfer, the forecast is flagged <i>indicative</i>.</p></div>
+    </div>
+    <div class="honest-banner reveal">ⓘ Transfer forecast: the model was trained on the Petropavl basin and applied to another basin via live data — treat as indicative. <span style="color:var(--muted)">— a real reliability note returned by the API.</span></div>
+  </div>
+</section>
+
+<!-- TECH -->
+<section id="tech" style="padding-top:0">
+  <div class="wrap">
+    <div class="section-head reveal">
+      <div class="eyebrow">Engineering</div>
+      <h2>An installable package, not a notebook.</h2>
+      <p>Leakage-aware features, a stable serving façade, 23 passing tests, ruff-clean, containerised and CI-checked.</p>
+    </div>
+    <div class="stack reveal">
+      <span class="chip">Python · XGBoost</span>
+      <span class="chip">scikit-learn</span>
+      <span class="chip">isotonic calibration</span>
+      <span class="chip">bootstrap ensemble</span>
+      <span class="chip">FastAPI</span>
+      <span class="chip">Open-Meteo (ERA5)</span>
+      <span class="chip">Expo · React Native</span>
+      <span class="chip">react-native-maps</span>
+      <span class="chip">expo-notifications</span>
+      <span class="chip">Docker · compose</span>
+      <span class="chip">GitHub Actions CI</span>
+      <span class="chip">pytest · 23 ✓</span>
+      <span class="chip">ruff</span>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="brand"><img class="mark" src="assets/icon.svg" alt=""/><span>Tasqyn</span></div>
+    <div class="tagline">Built for the people living along these rivers.</div>
+    <div class="meta">тасқын · MIT licensed<br/>model: tasqyn-xgboost-1.1.1</div>
+  </div>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>
