@@ -1,317 +1,74 @@
 <!doctype html>
-<html lang="ru">
+<html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Представляем Tasqyn: прогноз паводков для рек Казахстана</title>
-<meta name="description" content="Анонс Tasqyn (FloodCast): модель прогноза месячной вероятности паводка для снеготаянных рек Казахстана. XGBoost, честная walk-forward валидация (ROC-AUC 0.91), переоткрытый механизм снеготаяния, API и мобильное приложение." />
-<link rel="icon" href="assets/icon.svg" />
+<title>Trest</title>
+<meta name="description" content="Trest is an applied-AI studio building decision tools from real, local data. Latest: Tasqyn — month-ahead flood forecasting for Kazakhstan's rivers — is live." />
+<link rel="icon" href="assets/trest-mark.svg" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
-<link rel="stylesheet" href="styles.css" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Schibsted+Grotesk:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="trest.css" />
 </head>
 <body>
 
-<!-- fixed site-wide video background -->
-<div class="site-bg" aria-hidden="true">
-  <video class="bg-video" autoplay muted loop playsinline poster="assets/logo.png">
-    <source src="assets/flood-bg.mp4" type="video/mp4" />
-  </video>
-  <div class="bg-veil"></div>
-</div>
-
-<!-- NAV -->
-<nav id="nav">
-  <div class="wrap">
-    <a class="brand" href="#top" aria-label="Tasqyn">
-      <svg class="logo" viewBox="0 0 178 36" role="img" aria-label="Tasqyn">
-        <defs><linearGradient id="lgm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
-        <rect x="2" y="3" width="30" height="30" rx="9" fill="url(#lgm)"/>
-        <path d="M8.5 21 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#eaf7ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <path d="M8.5 15.5 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#bfe6fb" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
-        <text x="43" y="26" class="wordmark" fill="currentColor">Tasqyn</text>
-      </svg>
-    </a>
-    <div class="navlinks">
-      <a href="#problem" data-en="Problem">Проблема</a>
-      <a href="#model" data-en="Model">Модель</a>
-      <a href="#results" data-en="Results">Результаты</a>
-      <a href="#map" data-en="Data">Данные</a>
-      <a href="#app" data-en="App">Приложение</a>
-      <button class="lang-toggle" id="langToggle" aria-label="Switch language">EN</button>
-    </div>
-  </div>
-</nav>
-
-<!-- MASTHEAD / announcement header (over video) -->
-<header class="lead" id="top">
-  <div class="wrap lead-inner">
-    <h1 data-en="Introducing Tasqyn">Представляем Tasqyn</h1>
-    <p class="dek" data-en="Tasqyn estimates the <b>probability of flooding a month ahead</b> for rivers in Kazakhstan that flood in spring when the snow melts. Inside: 30 years of real observations, honest validation, an API and a mobile app.">Tasqyn оценивает <b>вероятность паводка на месяц вперёд</b> для рек Казахстана, которые весной разливаются от таяния снега. Внутри 30 лет реальных наблюдений, честная проверка модели, API и мобильное приложение.</p>
+<!-- header: just the wordmark, top-left -->
+<header class="top">
+  <div class="row">
+    <a class="wordmark" href="/" aria-label="Trest">Trest<span class="dot">.</span></a>
   </div>
 </header>
 
-<main class="article">
+<main>
+  <p class="intro rv">An applied-AI studio. <span class="q">We build decision tools from real data — and publish the honest numbers.</span></p>
 
-  <!-- LEAD paragraph -->
-  <section class="prose" id="intro">
-    <p class="lead-para" data-en="Every spring the Ishim (Esil) and nearby rivers flood as the winter snow melts. The 2024 floods were among the worst in decades, with mass evacuations across Northern Kazakhstan. <b>But the signal is there early: the snow that fell months before the flood. Tasqyn reads it and warns people while there is still time to prepare.</b>">Каждую весну Ишим (Есиль) и соседние реки разливаются, когда тает зимний снег. Паводки 2024 года стали одними из сильнейших за десятилетия, людей массово эвакуировали по всему Северному Казахстану. <b>А ведь сигнал есть заранее: это снег, который выпал за несколько месяцев до паводка. Tasqyn читает его и предупреждает, пока ещё есть время подготовиться.</b></p>
-  </section>
+  <div class="label rv">Newsroom</div>
 
-  <!-- FACTS strip -->
-  <section class="facts" id="facts">
-    <div class="fact"><div class="fn">0.91</div><div class="fl" data-en="ROC-AUC, honest walk-forward validation">ROC-AUC, честная walk-forward валидация</div></div>
-    <div class="fact"><div class="fn">30</div><div class="fl" data-en="years of observations (1995–2024)">лет наблюдений (1995–2024)</div></div>
-    <div class="fact"><div class="fn">329</div><div class="fl" data-en="months in the gauge record">месяцев в ряду наблюдений</div></div>
-    <div class="fact"><div class="fn">47</div><div class="fl" data-en="leakage-free features">признаков без утечек</div></div>
-    <div class="fact"><div class="fn">10/14</div><div class="fl" data-en="floods caught, 1 false alarm in 70 months">паводков поймано, 1 ложная тревога на 70 мес.</div></div>
-    <div class="fact"><div class="fn">6</div><div class="fl" data-en="river basins covered">речных бассейнов</div></div>
-  </section>
+  <div class="news">
 
-  <!-- PROBLEM -->
-  <section class="prose" id="problem">
-    <h2 data-en="The problem">Проблема</h2>
-    <p data-en="On these rivers, when the flood will come is largely clear months ahead: it comes down to how much snow fell over winter. That signal exists long before the danger. Yet official warnings often arrive only when the water is already rising. An extra month changes what families and emergency services can manage.">Когда на этих реках начнётся паводок, во многом понятно уже за месяцы: всё решает, сколько снега выпало за зиму. Этот сигнал есть задолго до самой опасности. Но официальные предупреждения часто приходят, только когда вода уже поднимается. А лишний месяц в запасе сильно меняет то, что успеют сделать семьи и спасатели.</p>
-    <p data-en="We build Tasqyn for the people who live along these rivers. They need a clear probability of flooding for the months ahead, not a report after the fact.">Мы делаем Tasqyn для людей, которые живут вдоль этих рек. Им нужна понятная вероятность паводка на ближайшие месяцы, а не отчёт задним числом.</p>
-  </section>
+    <!-- lead: Tasqyn release -->
+    <article class="item lead link rv" data-href="tasqyn/">
+      <div class="meta"><span class="rel">Release</span> · <span class="k">June 2026</span></div>
+      <h2>Tasqyn is live: flood probability a month ahead for Kazakhstan's rivers</h2>
+      <p>Our first product reads the snow that fell months ago and estimates the probability of spring
+        flooding for six river basins — calibrated, with confidence intervals, through an API and a mobile
+        app. Trained on 30 years of observations and scored the honest way.</p>
+      <a class="more" href="tasqyn/">Open Tasqyn <span class="arr">→</span></a>
+    </article>
 
-  <!-- MAP + DATA -->
-  <section id="map">
-    <div class="prose">
-      <h2 data-en="The observation network">Наблюдательная сеть</h2>
-      <p data-en="Six snowmelt basins across Northern Kazakhstan. Each point on the map is a gauge, and its colour shows the water level against the seasonal norm. Pick a station to see its observations and hydrograph.">Шесть бассейнов снеготаяния по Северному Казахстану. Каждая точка на карте это гидропост, а его цвет показывает уровень воды относительно сезонной нормы. Выберите станцию, чтобы увидеть наблюдения и гидрограф.</p>
-    </div>
-    <div class="map-grid">
-      <div class="map-panel">
-        <div class="map-toolbar">
-          <span class="legend"><i class="sw" data-s="normal"></i><span data-en="normal">норма</span></span>
-          <span class="legend"><i class="sw" data-s="elevated"></i><span data-en="elevated">повышенный</span></span>
-          <span class="legend"><i class="sw" data-s="high"></i><span data-en="high">высокий</span></span>
-          <span class="legend"><i class="sw" data-s="low"></i><span data-en="low">низкий</span></span>
-        </div>
-        <svg id="mapSvg" viewBox="0 0 800 560" preserveAspectRatio="xMidYMid meet" role="img" aria-label="Карта станций"></svg>
-        <div class="map-foot" data-en="projection by gauge coordinates · reference graticule">Проекция по координатам гидропостов · граф. сетка справочная</div>
-      </div>
-      <aside class="detail" id="detail"></aside>
-    </div>
-  </section>
+    <article class="item link rv" data-href="tasqyn/docs.html">
+      <div class="meta"><span class="rel">Release</span> · <span class="k">June 2026</span></div>
+      <h3>Tasqyn API, v1.1 — live forecasting from open weather</h3>
+      <p>One call returns the next few months of flood probability for a basin, fetching live weather for
+        you. Six basins, a one-to-six month horizon.</p>
+    </article>
 
-  <!-- HYDROGRAPH -->
-  <section id="hydrograph">
-    <div class="prose">
-      <h2 data-en="What the record shows">Что показывает ряд наблюдений</h2>
-      <p data-en="A continuous monthly record of the Ishim level at Petropavl from 1995 to 2022. This is the data the model learned from. Every spring shows the snowmelt peak, and in the big years the floods stand out at once.">Непрерывный месячный ряд уровня Ишима у Петропавла с 1995 по 2022 год. Именно на этих данных училась модель. Каждую весну виден пик от снеготаяния, а в крупные годы наводнения сразу бросаются в глаза.</p>
-    </div>
-    <div class="chart-card">
-      <div class="chart-controls">
-        <div class="seg" id="metricSeg">
-          <button data-metric="max" class="on" data-en="Max level">Макс. уровень</button>
-          <button data-metric="mean" data-en="Mean">Средний</button>
-        </div>
-        <div class="chart-meta" id="chartMeta"></div>
-      </div>
-      <div class="chart-wrap">
-        <svg id="chartSvg" viewBox="0 0 1100 420" preserveAspectRatio="none" aria-label="Гидрограф"></svg>
-        <div class="tooltip" id="chartTip" hidden></div>
-      </div>
-      <div class="chart-legend">
-        <span><i class="ln line"></i> <span data-en="water level">уровень воды</span></span>
-        <span><i class="ln thr"></i> <span data-en="flood threshold (~900 cm)">порог половодья (~900 см)</span></span>
-        <span><i class="ln peak"></i> <span data-en="spring peaks">весенние пики</span></span>
-      </div>
-    </div>
-  </section>
+    <article class="item link rv" data-href="tasqyn/index.html#model">
+      <div class="meta"><span class="k">Note</span> · <span class="k">May 2026</span></div>
+      <h3>On honest evaluation</h3>
+      <p>A naive split made the model look perfect. We threw that number out and report the walk-forward
+        score instead — the one we'd actually defend.</p>
+    </article>
 
-  <!-- MODEL -->
-  <section id="model">
-    <div class="prose">
-      <h2 data-en="How Tasqyn works">Как работает Tasqyn</h2>
-      <p data-en="This is an XGBoost classifier on 47 leakage-free features: lags, rolling statistics, differences, cyclical seasonality. The rolling windows are shifted by a month so the current month cannot peek at itself, and a separate test locks this in. Hyperparameters are tuned with RandomizedSearchCV on a TimeSeriesSplit. The class imbalance (floods are only about 6%) is handled explicitly.">Это классификатор XGBoost на 47 признаках без утечек: лаги, скользящие статистики, разности, циклическая сезонность. Скользящие окна сдвинуты на месяц, чтобы текущий месяц не подсматривал сам себя, и это закреплено отдельным тестом. Гиперпараметры подобраны через RandomizedSearchCV на TimeSeriesSplit. Дисбаланс классов (паводков всего около 6%) учтён явно.</p>
-      <p data-en="A word on honesty. On a naive split the model scores a ROC-AUC of 1.00, and that is suspicious. We do not present that number as a result. Instead we measure leave-one-year-out: the model is retrained for every test year and never sees the future.">Теперь про честность. На наивном сплите модель показывает ROC-AUC 1.00, и это подозрительно. Мы не выдаём такую цифру за результат. Вместо этого считаем по схеме leave-one-year-out: модель заново обучается для каждого тестового года и ни разу не видит будущее.</p>
-    </div>
+    <article class="item rv">
+      <div class="meta"><span class="k">Note</span> · <span class="k">May 2026</span></div>
+      <h3>Why Trest exists</h3>
+      <p>One rule: build tools from real, local data, and ship the number you'd stand behind — not the one
+        that looks best on a slide.</p>
+    </article>
 
-    <div class="verdicts row2">
-      <div class="verdict bad">
-        <div class="vh" data-en="Naive split · rejected">Наивный сплит · отклонён</div>
-        <div class="vbig">1.00</div>
-        <p data-en="12 test months and only 2 events. Statistically this means nothing. We keep it as a clear example of what not to trust.">12 тестовых месяцев и всего 2 события. Статистически это ничего не значит. Оставили как наглядный пример того, чему верить не стоит.</p>
-      </div>
-      <div class="verdict good">
-        <div class="vh" data-en="Walk-forward · honest score">Walk-forward · честная оценка</div>
-        <div class="vbig">0.91 <span>ROC-AUC</span></div>
-        <ul>
-          <li data-en="PR-AUC <b>0.72</b>">PR-AUC <b>0.72</b></li>
-          <li data-en="F1 (optimal) <b>0.80</b>">F1 (опт. порог) <b>0.80</b></li>
-          <li data-en="Recall <b>10 / 14 floods</b>">Recall <b>10 / 14 паводков</b></li>
-          <li data-en="False alarms <b>1 / 70 months</b>">Ложные тревоги <b>1 / 70 месяцев</b></li>
-        </ul>
-      </div>
-    </div>
-  </section>
-
-  <!-- SIGNAL -->
-  <section id="signal">
-    <div class="signal">
-      <div class="signal-stat">
-        <div class="sbig">0.53</div>
-        <div class="slbl" data-en="importance of <b>snow_cover_lag4</b><br/>(snowpack 4 months before the flood)">важность признака <b>snow_cover_lag4</b><br/>(снегозапас за 4 месяца до паводка)</div>
-      </div>
-      <p class="signal-note" data-en="Here is what really convinced us. We coded no hydrology into the model, yet it arrived at the key fact on its own: a spring flood depends most on the snow that fell about four months earlier. That is the well-known snowmelt mechanism. So the model caught a real cause, not random noise.">Вот что нас по-настоящему убедило. Мы не зашивали в модель никакой гидрологии, но она сама вышла на главное: сильнее всего на весенний паводок влияет снег, выпавший примерно за четыре месяца до него. Это и есть известный механизм снеготаяния. Значит, модель ухватила реальную причину, а не случайный шум в данных.</p>
-      <div class="bars" id="featBars">
-        <div class="bar"><span class="bn" data-en="snow_cover · lag 4mo">snow_cover · лаг 4 мес.</span><span class="track"><i class="fill" data-w="100"></i></span><span class="bp">.525</span></div>
-        <div class="bar"><span class="bn" data-en="temperature · lag 3mo">temperature · лаг 3 мес.</span><span class="track"><i class="fill" data-w="67"></i></span><span class="bp">.350</span></div>
-        <div class="bar"><span class="bn" data-en="river_level · roll 3mo">river_level · скольз. 3 мес.</span><span class="track"><i class="fill" data-w="10"></i></span><span class="bp">.050</span></div>
-        <div class="bar"><span class="bn" data-en="river_level_max · lag 6mo">river_level_max · лаг 6 мес.</span><span class="track"><i class="fill" data-w="6"></i></span><span class="bp">.032</span></div>
-        <div class="bar"><span class="bn" data-en="snow_cover · sum 3mo">snow_cover · сумма 3 мес.</span><span class="track"><i class="fill" data-w="4"></i></span><span class="bp">.018</span></div>
-      </div>
-    </div>
-  </section>
-
-  <!-- RESULTS gallery -->
-  <section id="results">
-    <div class="prose">
-      <h2 data-en="The results as they are">Результаты как есть</h2>
-      <p data-en="Real figures from the project (<span class='mono'>docs/figures/</span>). Switch tabs to change the figure, and click a figure to look closer.">Реальные графики из проекта (<span class="mono">docs/figures/</span>). Переключайте вкладки, а чтобы рассмотреть поближе, нажмите на сам график.</p>
-    </div>
-    <div class="gallery">
-      <div class="gtabs" id="gtabs"></div>
-      <figure class="gstage">
-        <img id="gImg" src="assets/timeline_probability.png" alt="" />
-        <figcaption id="gCap"></figcaption>
-      </figure>
-    </div>
-  </section>
-
-  <!-- APP -->
-  <section id="app">
-    <div class="prose">
-      <h2 data-en="The Tasqyn app">Приложение Tasqyn</h2>
-      <p data-en="The forecast does not live in a notebook, it lives on a phone. The app (Expo / React&nbsp;Native) has a per-basin risk map, a 1–3 month forecast with a confidence interval, push alerts when risk is high, history and an offline mode. Every number comes from the model through the API.">Прогноз живёт не в ноутбуке, а в телефоне. В приложении (Expo / React&nbsp;Native) есть карта риска по бассейнам, прогноз на 1–3 месяца с доверительным интервалом, пуши при высоком риске, история и офлайн-режим. Все цифры приходят из модели через API.</p>
-    </div>
-    <div class="phones">
-      <div class="phone">
-        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
-          <div class="app-head"><div class="app-title" data-en="Risk map">Карта риска</div><div class="app-sub" data-en="peak risk · 3 months">пиковый риск · 3 месяца</div></div>
-          <div class="map-mock">
-            <span class="pin high" style="left:36%;top:30%">78</span>
-            <span class="pin amber" style="left:62%;top:48%">41</span>
-            <span class="pin high" style="left:28%;top:60%">71</span>
-            <span class="pin safe" style="left:74%;top:28%">12</span>
-            <span class="pin amber" style="left:54%;top:70%">38</span>
-          </div>
-          <div class="tabbar"><span class="t on" data-en="Map">Карта</span><span class="t" data-en="Forecast">Прогноз</span><span class="t" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
-        </div>
-      </div>
-      <div class="phone">
-        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
-          <div class="app-head grad"><div class="app-title">Петропавл</div><div class="app-sub" data-en="Ishim (Esil)">Ишим (Есиль)</div></div>
-          <div class="app-body">
-            <div class="pill-row"><b class="on">Петропавл</b><b data-en="Astana">Астана</b><b data-en="Oral">Орал</b></div>
-            <div class="gauge-mock">
-              <svg width="150" height="150" viewBox="0 0 150 150">
-                <circle cx="75" cy="75" r="62" fill="none" stroke="#e3edf2" stroke-width="11"/>
-                <circle cx="75" cy="75" r="62" fill="none" stroke="#d2452c" stroke-width="11" stroke-linecap="round"
-                        stroke-dasharray="389.6" stroke-dashoffset="85.7" transform="rotate(-90 75 75)"/>
-              </svg>
-              <div class="gv">78%</div>
-            </div>
-            <div class="ci-line" data-en="90% CI 55–93% · HIGH RISK">90% ДИ 55–93% · РИСК ВЫСОКИЙ</div>
-            <div class="frow"><span data-en="Apr 2027">Апр 2027</span><span class="fp high">78%</span><i class="ft"><b style="width:78%;background:#d2452c"></b></i></div>
-            <div class="frow"><span data-en="Mar 2027">Мар 2027</span><span class="fp amber">44%</span><i class="ft"><b style="width:44%;background:#e0a020"></b></i></div>
-            <div class="frow"><span data-en="May 2027">Май 2027</span><span class="fp amber">36%</span><i class="ft"><b style="width:36%;background:#e0a020"></b></i></div>
-          </div>
-          <div class="tabbar"><span class="t" data-en="Map">Карта</span><span class="t on" data-en="Forecast">Прогноз</span><span class="t" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
-        </div>
-      </div>
-      <div class="phone">
-        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
-          <div class="app-head"><div class="app-title" data-en="History">История</div><div class="app-sub" data-en="saved forecasts">сохранённые прогнозы</div></div>
-          <div class="app-body">
-            <div class="hrow"><span data-en="Apr 2027 · Petropavl">Апр 2027 · Петропавл</span><span class="fp high">78%</span></div>
-            <div class="hrow"><span data-en="Apr 2027 · Atbasar">Апр 2027 · Атбасар</span><span class="fp high">71%</span></div>
-            <div class="hrow"><span data-en="Mar 2027 · Astana">Мар 2027 · Астана</span><span class="fp amber">41%</span></div>
-            <div class="hrow"><span data-en="Apr 2027 · Oral">Апр 2027 · Орал</span><span class="fp amber">49%</span></div>
-            <div class="hrow"><span data-en="May 2027 · Kurgan">Май 2027 · Курган</span><span class="fp safe">12%</span></div>
-          </div>
-          <div class="tabbar"><span class="t" data-en="Map">Карта</span><span class="t" data-en="Forecast">Прогноз</span><span class="t on" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- FLOODS -->
-  <section id="floods">
-    <div class="prose">
-      <h2 data-en="When the river breaks its banks">Когда река выходит из берегов</h2>
-      <p data-en="The rivers of Northern Kazakhstan flood almost every spring as the winter snow melts. Below you can see what the observations say and the biggest floods the region has had.">Реки Северного Казахстана разливаются почти каждую весну, когда тает зимний снег. Ниже видно, что говорят данные наблюдений и какие в регионе были крупные паводки.</p>
-    </div>
-    <div class="flood-grid">
-      <div class="flood-stat">
-        <div class="fbig" id="fYears"></div>
-        <div class="flbl" data-en="years with floods above threshold (data 1995–2022)">лет с половодьем выше порога (по данным 1995–2022)</div>
-      </div>
-      <div class="unified">
-        <div class="u-item">
-          <h3 data-en="Spring 2024: the worst in decades">Весна 2024: сильнейшее за десятилетия</h3>
-          <p data-en="The Ishim, the Zhabay at Atbasar, the Tobol and the Ural all overflowed. People were evacuated en masse across Northern Kazakhstan. The Ural at Oral and the Zhabay at Atbasar were hit hardest.">Тогда разлились Ишим, Жабай у Атбасара, Тобол и Урал. Людей массово эвакуировали по всему Северному Казахстану. Сильнее всего досталось Уралу у Орала и Жабаю у Атбасара.</p>
-        </div>
-        <div class="u-item">
-          <h3 data-en="It comes down to snowmelt">Дело в снеготаянии</h3>
-          <p data-en="How big a flood is and when it comes depend on the winter snowpack. In the data the river level shoots up in March to May, exactly as the snow disappears. The model's feature importances show the same thing.">Сила и сроки паводка зависят от того, сколько за зиму накопилось снега. В данных уровень реки резко идёт вверх в марте–мае, как раз когда сходит снег. То же самое показывает и важность признаков в модели.</p>
-        </div>
-      </div>
-    </div>
-    <div class="floodyears" id="floodYears"></div>
-  </section>
-
-  <!-- AVAILABILITY + LIMITATIONS -->
-  <section id="availability">
-    <div class="prose">
-      <h2 data-en="Availability and honest limits">Доступность и честные ограничения</h2>
-    </div>
-    <div class="unified wide">
-      <div class="u-item">
-        <h3 data-en="Everything is open">Всё открыто</h3>
-        <p data-en="There is a FastAPI service (<span class='mono'>/predict</span>, <span class='mono'>/forecast/live</span>, <span class='mono'>/basins</span>) and the Tasqyn app. Live weather comes from the open Open-Meteo ERA5 archive, with no API key.">Есть FastAPI-сервис (<span class="mono">/predict</span>, <span class="mono">/forecast/live</span>, <span class="mono">/basins</span>) и приложение Tasqyn. Свежую погоду берём из открытого архива Open-Meteo ERA5, без всякого API-ключа.</p>
-      </div>
-      <div class="u-item">
-        <h3 data-en="Calibrated and bounded">Калибровка и границы</h3>
-        <p data-en="Isotonic calibration on out-of-sample scores and a 15-model bootstrap give a 90% prediction interval. If live inputs fall outside the training range, the forecast is flagged as indicative.">Изотоническая калибровка на out-of-sample оценках и бутстрап из 15 моделей дают 90% интервал. Если входные данные выходят за обучающий диапазон, прогноз помечается как ориентировочный.</p>
-      </div>
-      <div class="u-item">
-        <h3 data-en="What we don't claim">Чего мы не утверждаем</h3>
-        <p data-en="A small positive class, label noise and a one-basin training anchor mean non-anchor basins are scored by transfer and marked indicative. We report the honest number, not the perfect one.">Малый положительный класс, шум в метках и обучение на одном опорном бассейне: остальные посты оцениваются переносом и помечаются ориентировочными. Мы приводим честное число, а не идеальное.</p>
-      </div>
-    </div>
-  </section>
-
+  </div>
 </main>
 
 <footer>
-  <div class="wrap">
-    <div class="brand foot">
-      <svg class="logo" viewBox="0 0 178 36" role="img" aria-label="Tasqyn">
-        <defs><linearGradient id="lgmf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
-        <rect x="2" y="3" width="30" height="30" rx="9" fill="url(#lgmf)"/>
-        <path d="M8.5 21 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#eaf7ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
-        <path d="M8.5 15.5 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#bfe6fb" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
-        <text x="43" y="26" class="wordmark" fill="currentColor">Tasqyn</text>
-      </svg>
-    </div>
-    <div class="tagline" data-en="Flood forecasting for the people who live along these rivers.">Прогноз паводков для людей, живущих вдоль этих рек.</div>
-    <div class="meta" data-en="FloodCast · flood-forecasting model · Ishim (Esil) river basin<br/>observations 1995–2024 · Northern Kazakhstan">FloodCast · модель прогноза паводков · бассейн реки Ишим (Есиль)<br/>данные наблюдений 1995–2024 · Северный Казахстан</div>
-  </div>
+  <span class="who">Trest — applied-AI studio · © 2026</span>
+  <span class="links">
+    <a href="tasqyn/">Tasqyn</a>
+    <a href="tasqyn/docs.html">API docs</a>
+  </span>
 </footer>
 
-<!-- lightbox -->
-<div class="lightbox" id="lightbox" hidden>
-  <button class="lb-close" id="lbClose" aria-label="Закрыть">✕</button>
-  <img id="lbImg" src="" alt="" />
-  <div class="lb-cap" id="lbCap"></div>
-</div>
-
-<script src="data.js"></script>
-<script src="app.js"></script>
+<script src="trest.js"></script>
 </body>
 </html>
