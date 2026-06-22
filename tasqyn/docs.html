@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Tasqyn API Reference</title>
+<meta name="description" content="Tasqyn API reference — REST endpoints and the flood-forecasting model. Score observation windows, run live multi-basin forecasts, read calibrated flood probabilities with confidence intervals. XGBoost, honest walk-forward validation." />
+<link rel="icon" href="assets/icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+<style>
+/* ============================================================
+   Tasqyn API reference — Stripe-style three-column docs.
+   Reuses tokens/fonts from styles.css; adds the docs shell,
+   the sticky sidebar and the dark code rail.
+   ============================================================ */
+:root{
+  --doc-bg:#f3f7f9;
+  --code-bg:#0b1b27;
+  --code-bg-2:#0f2331;
+  --code-line:#14303f;
+  --code-ink:#cbdde8;
+  --code-mut:#5d7e91;
+  --t-key:#7fd1ec;
+  --t-str:#93dca7;
+  --t-num:#f3b465;
+  --t-bool:#f0936b;
+  --t-punc:#6f93a6;
+  --t-com:#557082;
+}
+html{background:var(--doc-bg);scroll-behavior:smooth}
+body.docs-body{background:var(--doc-bg);color:var(--ink)}
+
+/* ---- top bar ---- */
+.doc-top{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.88);
+  backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}
+.doc-top .row{width:min(1340px,94vw);margin:0 auto;display:flex;align-items:center;
+  justify-content:space-between;height:60px;gap:18px}
+.doc-brand{display:flex;align-items:center;gap:11px;color:var(--ink)}
+.doc-brand .logo{height:28px;width:auto;display:block}
+.doc-brand .logo .wordmark{font-family:var(--sans);font-size:22px;font-weight:600;letter-spacing:-.6px}
+.api-badge{font-family:var(--mono);font-size:10.5px;font-weight:600;letter-spacing:.12em;
+  color:var(--water-deep);background:var(--surface-2);border:1px solid var(--line-2);
+  border-radius:6px;padding:3px 8px;text-transform:uppercase}
+.doc-right{display:flex;align-items:center;gap:14px}
+.doc-back{font-size:14px;font-weight:500;color:var(--ink-2);transition:color .18s}
+.doc-back:hover{color:var(--water-deep)}
+.doc-burger{display:none;flex-direction:column;gap:5px;background:none;border:0;cursor:pointer;padding:8px}
+.doc-burger span{display:block;width:22px;height:2px;background:var(--ink);border-radius:2px}
+@media(max-width:880px){.doc-burger{display:flex}}
+
+/* ---- shell ---- */
+.doc-shell{width:min(1340px,94vw);margin:0 auto;display:grid;
+  grid-template-columns:248px minmax(0,1fr);gap:0;align-items:start}
+
+/* ---- sidebar ---- */
+.doc-side{position:sticky;top:60px;height:calc(100vh - 60px);overflow-y:auto;
+  padding:30px 26px 60px 0;border-right:1px solid var(--line)}
+.doc-side::-webkit-scrollbar{width:8px}
+.doc-side::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:8px}
+.side-group{margin-bottom:24px}
+.side-group h4{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin:0 0 10px;padding-left:2px}
+.side-group a{display:flex;align-items:center;gap:9px;font-size:13.5px;color:var(--ink-2);
+  padding:6px 10px;border-radius:8px;font-weight:500;transition:.15s;margin-bottom:1px}
+.side-group a:hover{background:var(--surface);color:var(--ink)}
+.side-group a.on{background:var(--surface);color:var(--ink);box-shadow:inset 2px 0 0 var(--water)}
+.m-tag{font-family:var(--mono);font-size:9px;font-weight:600;letter-spacing:.04em;padding:2px 5px;
+  border-radius:4px;color:#fff;flex:none;min-width:34px;text-align:center}
+.m-get{background:#2e9e6b}.m-post{background:#1f7fb0}.m-del{background:#d2452c}
+
+/* ---- main column ---- */
+.doc-main{padding:30px 0 120px 44px;min-width:0}
+.doc-section{padding:26px 0 34px;border-bottom:1px solid var(--line);scroll-margin-top:80px}
+.doc-section:last-child{border-bottom:0}
+
+/* two-column: prose left, code rail right */
+.split{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,440px);gap:40px;align-items:start}
+@media(max-width:1100px){.split{grid-template-columns:1fr}}
+.split .code-col{position:sticky;top:80px}
+@media(max-width:1100px){.split .code-col{position:static}}
+
+.doc-h1{font-family:var(--serif);font-weight:500;font-size:clamp(34px,4.4vw,50px);
+  letter-spacing:-.02em;line-height:1.04;margin:0 0 16px}
+.doc-h2{font-family:var(--serif);font-weight:500;font-size:clamp(24px,3vw,32px);
+  letter-spacing:-.015em;margin:0 0 6px}
+.doc-ey{font-family:var(--mono);font-size:11.5px;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--water-deep);font-weight:600;margin:0 0 10px}
+.doc-main p{font-size:15.5px;line-height:1.65;color:var(--ink-2);margin:0 0 14px}
+.doc-main p code,.doc-main li code,td code,.inline{font-family:var(--mono);font-size:.86em;
+  background:var(--surface);border:1px solid var(--line);border-radius:5px;padding:1.5px 6px;color:var(--water-deep)}
+.doc-main a.lnk{color:var(--water-deep);font-weight:600;border-bottom:1px solid var(--line-2)}
+.doc-main a.lnk:hover{border-bottom-color:var(--water)}
+
+.endpoint-head{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:0 0 14px}
+.endpoint-head .m-tag{font-size:11px;padding:5px 10px;min-width:auto}
+.endpoint-head .path{font-family:var(--mono);font-size:16px;font-weight:600;color:var(--ink);word-break:break-all}
+
+/* parameter list */
+.params{margin:22px 0 6px;border-top:1px solid var(--line)}
+.param{padding:15px 2px;border-bottom:1px solid var(--line)}
+.param .pl{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.param .pn{font-family:var(--mono);font-size:13.5px;font-weight:600;color:var(--ink)}
+.param .pt{font-family:var(--mono);font-size:12px;color:var(--water-deep)}
+.param .req{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;
+  color:var(--high);font-weight:600}
+.param .opt{font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)}
+.param .pd{font-size:14px;color:var(--ink-2);margin-top:6px;line-height:1.55}
+.param .pd code{font-size:.85em}
+.params-title{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;margin:26px 0 0}
+
+/* attribute table (object fields) */
+.attrs{width:100%;border-collapse:collapse;margin:16px 0 4px;font-size:14px}
+.attrs th{text-align:left;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;
+  color:var(--muted);font-weight:600;padding:0 14px 10px 0;border-bottom:1px solid var(--line)}
+.attrs td{padding:13px 14px 13px 0;border-bottom:1px solid var(--line);vertical-align:top;color:var(--ink-2)}
+.attrs td:first-child{font-family:var(--mono);font-weight:600;color:var(--ink);white-space:nowrap}
+.attrs td.ty{font-family:var(--mono);color:var(--water-deep);font-size:12.5px;white-space:nowrap}
+
+/* callouts */
+.note{display:flex;gap:12px;background:var(--surface);border:1px solid var(--line);
+  border-left:3px solid var(--water);border-radius:10px;padding:14px 16px;margin:18px 0;font-size:14px;color:var(--ink-2)}
+.note.warn{border-left-color:var(--elevated)}
+.note .ni{font-family:var(--mono);font-weight:700;color:var(--water-deep);flex:none}
+.note.warn .ni{color:#9a6d06}
+
+/* ---- code rail ---- */
+.code-block{background:var(--code-bg);border:1px solid #14303f;border-radius:13px;overflow:hidden;
+  box-shadow:0 24px 50px -30px rgba(8,22,33,.7);margin-bottom:16px}
+.code-head{display:flex;align-items:center;justify-content:space-between;gap:10px;
+  padding:11px 14px;background:var(--code-bg-2);border-bottom:1px solid #14303f}
+.code-head .ct{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:#8fb0c2;text-transform:uppercase}
+.code-head .copy{font-family:var(--mono);font-size:10.5px;color:#6f93a6;background:transparent;border:1px solid #1d3e4f;
+  border-radius:6px;padding:4px 9px;cursor:pointer;transition:.15s}
+.code-head .copy:hover{color:#cbdde8;border-color:#2a5468}
+.code-tabs{display:flex;gap:2px;padding:8px 10px 0;background:var(--code-bg-2)}
+.code-tabs button{font-family:var(--mono);font-size:11.5px;color:#6f93a6;background:transparent;border:0;
+  padding:7px 12px;border-radius:7px 7px 0 0;cursor:pointer;transition:.15s}
+.code-tabs button.on{color:#eaf4f9;background:var(--code-bg)}
+pre{margin:0;padding:16px;overflow-x:auto;font-family:var(--mono);font-size:12.5px;line-height:1.7;color:var(--code-ink)}
+pre::-webkit-scrollbar{height:7px}
+pre::-webkit-scrollbar-thumb{background:#1d3e4f;border-radius:7px}
+code.json,code.sh{font-family:var(--mono)}
+.tk-key{color:var(--t-key)}.tk-str{color:var(--t-str)}.tk-num{color:var(--t-num)}
+.tk-bool{color:var(--t-bool)}.tk-punc{color:var(--t-punc)}.tk-com{color:#557082}
+.sh-cmd{color:#9fd8b0}.sh-flag{color:#f3b465}.sh-url{color:#7fd1ec}.sh-str{color:#cbdde8}
+.resp-line{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--code-bg-2);
+  border-bottom:1px solid #14303f;font-family:var(--mono);font-size:11.5px;color:#8fb0c2}
+.resp-200{color:#93dca7}.resp-4xx{color:#f0936b}
+
+/* hero band */
+.doc-hero{padding:54px 0 30px}
+.doc-hero .lede{font-size:18px;line-height:1.6;color:var(--ink-2);max-width:680px}
+.base-url{display:inline-flex;align-items:center;gap:10px;font-family:var(--mono);font-size:13.5px;
+  background:var(--code-bg);color:#cbdde8;border-radius:10px;padding:11px 16px;margin-top:8px}
+.base-url b{color:#7fd1ec;font-weight:600}
+
+.chip-row{display:flex;flex-wrap:wrap;gap:8px;margin:22px 0 4px}
+.chip-row .c{font-family:var(--mono);font-size:12px;color:var(--ink-2);background:var(--surface);
+  border:1px solid var(--line);border-radius:999px;padding:7px 13px}
+.chip-row .c b{color:var(--ink)}
+
+.endpoint-index{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--line);
+  border:1px solid var(--line);border-radius:12px;overflow:hidden;margin-top:26px}
+@media(max-width:680px){.endpoint-index{grid-template-columns:1fr}}
+.endpoint-index a{display:flex;align-items:center;gap:11px;background:var(--surface);padding:14px 16px;transition:.15s}
+.endpoint-index a:hover{background:var(--surface-2)}
+.endpoint-index .path{font-family:var(--mono);font-size:13px;color:var(--ink);font-weight:500}
+
+.doc-foot{border-top:1px solid var(--line);padding:30px 0 60px;color:var(--muted);
+  font-family:var(--mono);font-size:12px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px}
+
+@media(max-width:880px){
+  .doc-shell{grid-template-columns:1fr}
+  .doc-side{position:fixed;top:60px;left:0;bottom:0;width:280px;background:var(--surface);
+    border-right:1px solid var(--line);padding:24px 22px;transform:translateX(-102%);transition:transform .25s;z-index:55;height:auto}
+  .doc-side.open{transform:none;box-shadow:0 30px 80px -20px rgba(13,42,61,.4)}
+  .doc-main{padding:24px 0 100px}
+}
+</style>
+</head>
+<body class="docs-body">
+
+<!-- top bar -->
+<header class="doc-top">
+  <div class="row">
+    <a class="doc-brand" href="index.html#top" aria-label="Tasqyn">
+      <svg class="logo" viewBox="0 0 132 36" role="img" aria-label="Tasqyn">
+        <defs><linearGradient id="lgd" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
+        <rect x="2" y="3" width="30" height="30" rx="9" fill="url(#lgd)"/>
+        <path d="M8.5 21 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#eaf7ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M8.5 15.5 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#bfe6fb" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+        <text x="43" y="26" class="wordmark" fill="currentColor">Tasqyn</text>
+      </svg>
+      <span class="api-badge">API</span>
+    </a>
+    <div class="doc-right">
+      <a class="doc-back" href="index.html">Tasqyn&nbsp;↗</a>
+      <button class="doc-burger" id="docBurger" aria-label="Open navigation"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<div class="doc-shell">
+
+  <!-- sidebar -->
+  <aside class="doc-side" id="docSide">
+    <div class="side-group">
+      <h4>Getting started</h4>
+      <a href="#introduction">Introduction</a>
+      <a href="#base-url">Base URL</a>
+      <a href="#authentication">Authentication</a>
+      <a href="#errors">Errors</a>
+      <a href="#versioning">Versioning</a>
+    </div>
+    <div class="side-group">
+      <h4>Core objects</h4>
+      <a href="#forecast-object">The Forecast object</a>
+      <a href="#basin-object">The Basin object</a>
+      <a href="#observation-object">The Observation object</a>
+    </div>
+    <div class="side-group">
+      <h4>Endpoints</h4>
+      <a href="#health"><span class="m-tag m-get">GET</span> Health</a>
+      <a href="#basins"><span class="m-tag m-get">GET</span> List basins</a>
+      <a href="#predict"><span class="m-tag m-post">POST</span> Predict</a>
+      <a href="#forecast-live"><span class="m-tag m-get">GET</span> Live forecast</a>
+      <a href="#history"><span class="m-tag m-get">GET</span> History</a>
+      <a href="#clear-history"><span class="m-tag m-del">DEL</span> Clear history</a>
+      <a href="#push-register"><span class="m-tag m-post">POST</span> Register push</a>
+    </div>
+    <div class="side-group">
+      <h4>The model</h4>
+      <a href="#model">Model card</a>
+      <a href="#risk-bands">Risk bands</a>
+      <a href="#reliability">Reliability &amp; calibration</a>
+    </div>
+  </aside>
+
+  <!-- main -->
+  <main class="doc-main">
+
+    <!-- hero / intro -->
+    <section class="doc-section" id="introduction">
+      <div class="doc-hero">
+        <p class="doc-ey">Tasqyn API · Reference</p>
+        <h1 class="doc-h1">Flood probability, one HTTP call ahead.</h1>
+        <p class="lede">The Tasqyn API turns hydro-meteorological observations into a calibrated
+          <b>probability of spring flooding a month or more ahead</b> for snowmelt-driven river basins.
+          One trained XGBoost model, an honest walk-forward score of <b>ROC-AUC&nbsp;0.91</b>, a 90% prediction
+          interval on every forecast, and live multi-basin forecasting from open weather data.</p>
+        <div class="chip-row">
+          <span class="c"><b>REST</b> · JSON over HTTPS</span>
+          <span class="c"><b>6</b> basins</span>
+          <span class="c"><b>1–6</b> month horizon</span>
+          <span class="c">Model <b>tasqyn-xgboost-1.1.1</b></span>
+        </div>
+      </div>
+
+      <p>Every response is plain JSON. There are no SDKs to install — the examples on this page use
+        <code>curl</code>, but any HTTP client works. If you only need one thing, you almost certainly
+        want <a href="#forecast-live" class="lnk">GET&nbsp;/forecast/live</a>: give it a basin and it returns
+        the next few months of flood probability, calibrated, with confidence intervals, using live weather
+        it fetches for you.</p>
+
+      <div class="endpoint-index">
+        <a href="#health"><span class="m-tag m-get">GET</span><span class="path">/health</span></a>
+        <a href="#basins"><span class="m-tag m-get">GET</span><span class="path">/basins</span></a>
+        <a href="#predict"><span class="m-tag m-post">POST</span><span class="path">/predict</span></a>
+        <a href="#forecast-live"><span class="m-tag m-get">GET</span><span class="path">/forecast/live</span></a>
+        <a href="#history"><span class="m-tag m-get">GET</span><span class="path">/history</span></a>
+        <a href="#clear-history"><span class="m-tag m-del">DEL</span><span class="path">/history</span></a>
+        <a href="#push-register"><span class="m-tag m-post">POST</span><span class="path">/push/register</span></a>
+        <a href="index.html#model"><span class="m-tag m-get" style="background:#6c8595">DOC</span><span class="path">Methodology</span></a>
+      </div>
+    </section>
+
+    <!-- base url -->
+    <section class="doc-section" id="base-url">
+      <div class="split">
+        <div>
+          <h2 class="doc-h2">Base URL</h2>
+          <p>All endpoints are served from a single host and addressed by path. There is no resource
+            prefix — paths such as <code>/predict</code> sit at the root.</p>
+          <div class="base-url"><b>POST</b> https://api.tasqyn.trest.me/predict</div>
+          <p style="margin-top:16px">Running the service yourself? The reference server is a FastAPI app
+            (<code>uvicorn api.main:app</code>) that listens on <code>http://127.0.0.1:8000</code> by default
+            and ships interactive Swagger UI at <code>/docs</code> and a raw schema at <code>/openapi.json</code>.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Run locally</span></div>
+<pre><code class="sh"><span class="sh-cmd">pip</span> install -e <span class="sh-str">".[api]"</span>
+<span class="sh-cmd">uvicorn</span> api.main:app <span class="sh-flag">--reload</span>
+
+<span class="tk-com"># interactive docs</span>
+<span class="sh-cmd">open</span> <span class="sh-url">http://127.0.0.1:8000/docs</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- authentication -->
+    <section class="doc-section" id="authentication">
+      <div class="split">
+        <div>
+          <h2 class="doc-h2">Authentication</h2>
+          <p>The public preview is open: no key is required, and cross-origin requests are allowed from any
+            origin so the web app and mobile client can call it directly.</p>
+          <p>Production deployments authenticate with a bearer token. Send it in the
+            <code>Authorization</code> header; requests without a valid key receive <code>401</code>.
+            Treat keys as secret — never ship them in client-side code you don't control.</p>
+          <div class="note"><span class="ni">i</span><span>The preview has no rate limit, but it is best-effort.
+            For anything you depend on, run your own instance from the open-source service — it is a single
+            FastAPI file with swappable in-memory stores.</span></div>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Authenticated request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> https://api.tasqyn.trest.me/basins <span class="sh-punc">\</span>
+  <span class="sh-flag">-H</span> <span class="sh-str">"Authorization: Bearer $TASQYN_KEY"</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- errors -->
+    <section class="doc-section" id="errors">
+      <div class="split">
+        <div>
+          <h2 class="doc-h2">Errors</h2>
+          <p>Tasqyn uses conventional HTTP status codes. <code>2xx</code> means success; <code>4xx</code>
+            means the request was rejected (a bad body, an unknown basin); <code>5xx</code> means the model
+            or an upstream data source was unavailable. Error bodies follow FastAPI's shape with a single
+            <code>detail</code> field.</p>
+          <table class="attrs">
+            <thead><tr><th>Status</th><th>Meaning</th></tr></thead>
+            <tbody>
+              <tr><td>200</td><td>Success.</td></tr>
+              <tr><td>400</td><td>The observation window could not be scored (e.g. empty or malformed).</td></tr>
+              <tr><td>404</td><td>Unknown <code>basin_id</code>. Call <code>/basins</code> for valid ids.</td></tr>
+              <tr><td>422</td><td>Request body failed schema validation.</td></tr>
+              <tr><td>502</td><td>Live weather (Open-Meteo) was unavailable for a live forecast.</td></tr>
+              <tr><td>503</td><td>Model artifacts are not loaded — the service is degraded.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-4xx">●</span> 404 Not Found</div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"detail"</span><span class="tk-punc">:</span> <span class="tk-str">"Unknown basin 'volga'. Known: petropavl,
+            nur-sultan, atbasar, kokshetau, oral, kurgan"</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-4xx">●</span> 503 Service Unavailable</div>
+<pre><code class="json"><span class="tk-punc">{</span> <span class="tk-key">"detail"</span><span class="tk-punc">:</span> <span class="tk-str">"Model artifacts are not available."</span> <span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- versioning -->
+    <section class="doc-section" id="versioning">
+      <div class="split">
+        <div>
+          <h2 class="doc-h2">Versioning</h2>
+          <p>The API surface is versioned independently of the model. The service version
+            (<code>1.1.0</code>) tracks the HTTP contract; the model version
+            (<code>tasqyn-xgboost-1.1.1</code>) tracks the weights and calibration. Every forecast echoes the
+            exact <code>model_version</code> that produced it, so a stored prediction is always reproducible.</p>
+          <p>Additive changes (new fields, new endpoints) ship without a version bump. Breaking changes to the
+            HTTP contract increment the service version.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">GET /health</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"status"</span><span class="tk-punc">:</span> <span class="tk-str">"ok"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_loaded"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"calibrated"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_version"</span><span class="tk-punc">:</span> <span class="tk-str">"tasqyn-xgboost-1.1.1"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_features"</span><span class="tk-punc">:</span> <span class="tk-num">44</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_basins"</span><span class="tk-punc">:</span> <span class="tk-num">6</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== CORE OBJECTS ===================== -->
+
+    <!-- forecast object -->
+    <section class="doc-section" id="forecast-object">
+      <div class="split">
+        <div>
+          <p class="doc-ey">Core object</p>
+          <h2 class="doc-h2">The Forecast object</h2>
+          <p>A forecast is the model's answer for one basin in one month: a calibrated flood probability,
+            a human risk band, a prediction interval and the provenance metadata that tells you how much to
+            trust it. <code>/predict</code> returns one; <code>/forecast/live</code> returns several.</p>
+          <table class="attrs">
+            <thead><tr><th>Attribute</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>flood_probability</td><td class="ty">float</td><td>Calibrated probability of flooding, <code>0–1</code>. The number to act on.</td></tr>
+              <tr><td>raw_probability</td><td class="ty">float</td><td>Pre-calibration model score, <code>0–1</code>. For inspection only.</td></tr>
+              <tr><td>risk</td><td class="ty">object</td><td>Human band: <code>label</code> (<code>low</code>/<code>moderate</code>/<code>high</code>) and a hex <code>color</code>.</td></tr>
+              <tr><td>confidence_interval</td><td class="ty">object</td><td>90% interval from a 15-model bootstrap: <code>lower</code>, <code>upper</code>, <code>std</code>. May be <code>null</code>.</td></tr>
+              <tr><td>threshold</td><td class="ty">float</td><td>Decision threshold used for <code>is_flood_predicted</code>.</td></tr>
+              <tr><td>is_flood_predicted</td><td class="ty">bool</td><td><code>true</code> when <code>flood_probability ≥ threshold</code>.</td></tr>
+              <tr><td>in_flood_season</td><td class="ty">bool</td><td>Whether the month is in the basin's snowmelt season.</td></tr>
+              <tr><td>reliability</td><td class="ty">object</td><td>Trust metadata — see <a href="#reliability" class="lnk">Reliability</a>.</td></tr>
+              <tr><td>provenance</td><td class="ty">string</td><td>How the inputs were obtained, e.g. <code>user-supplied</code> or <code>open-meteo-live</code>.</td></tr>
+              <tr><td>basin_id / basin_label</td><td class="ty">string</td><td>Which basin the forecast is for. May be <code>null</code> for an unlabelled <code>/predict</code> call.</td></tr>
+              <tr><td>year / month</td><td class="ty">int</td><td>The month the forecast applies to.</td></tr>
+              <tr><td>model_version</td><td class="ty">string</td><td>Exact model that produced the forecast.</td></tr>
+              <tr><td>generated_at</td><td class="ty">string</td><td>ISO-8601 timestamp.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Forecast</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"basin_id"</span><span class="tk-punc">:</span> <span class="tk-str">"petropavl"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"basin_label"</span><span class="tk-punc">:</span> <span class="tk-str">"Petropavl · Ishim (Esil)"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"year"</span><span class="tk-punc">:</span> <span class="tk-num">2024</span><span class="tk-punc">,</span>
+  <span class="tk-key">"month"</span><span class="tk-punc">:</span> <span class="tk-num">4</span><span class="tk-punc">,</span>
+  <span class="tk-key">"flood_probability"</span><span class="tk-punc">:</span> <span class="tk-num">0.82</span><span class="tk-punc">,</span>
+  <span class="tk-key">"raw_probability"</span><span class="tk-punc">:</span> <span class="tk-num">0.913</span><span class="tk-punc">,</span>
+  <span class="tk-key">"confidence_interval"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span>
+    <span class="tk-key">"lower"</span><span class="tk-punc">:</span> <span class="tk-num">0.55</span><span class="tk-punc">,</span>
+    <span class="tk-key">"upper"</span><span class="tk-punc">:</span> <span class="tk-num">0.93</span><span class="tk-punc">,</span>
+    <span class="tk-key">"std"</span><span class="tk-punc">:</span> <span class="tk-num">0.11</span>
+  <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-key">"risk"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"label"</span><span class="tk-punc">:</span> <span class="tk-str">"high"</span><span class="tk-punc">,</span> <span class="tk-key">"color"</span><span class="tk-punc">:</span> <span class="tk-str">"#ef4444"</span> <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-key">"threshold"</span><span class="tk-punc">:</span> <span class="tk-num">0.5</span><span class="tk-punc">,</span>
+  <span class="tk-key">"is_flood_predicted"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"in_flood_season"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"provenance"</span><span class="tk-punc">:</span> <span class="tk-str">"open-meteo-live"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"reliability"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span>
+    <span class="tk-key">"in_distribution"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+    <span class="tk-key">"out_of_range_features"</span><span class="tk-punc">:</span> <span class="tk-punc">[]</span><span class="tk-punc">,</span>
+    <span class="tk-key">"river_level_imputed"</span><span class="tk-punc">:</span> <span class="tk-bool">false</span><span class="tk-punc">,</span>
+    <span class="tk-key">"transfer"</span><span class="tk-punc">:</span> <span class="tk-bool">false</span><span class="tk-punc">,</span>
+    <span class="tk-key">"note"</span><span class="tk-punc">:</span> <span class="tk-str">"in-distribution anchor basin"</span>
+  <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_version"</span><span class="tk-punc">:</span> <span class="tk-str">"tasqyn-xgboost-1.1.1"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"generated_at"</span><span class="tk-punc">:</span> <span class="tk-str">"2024-03-01T09:12:44Z"</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- basin object -->
+    <section class="doc-section" id="basin-object">
+      <div class="split">
+        <div>
+          <p class="doc-ey">Core object</p>
+          <h2 class="doc-h2">The Basin object</h2>
+          <p>A basin is a river gauge Tasqyn can forecast. One basin — <b>Petropavl</b> on the Ishim (Esil) —
+            is the <i>anchor</i>: the model is trained on its 1995–2024 record. The others are
+            hydrologically similar snowmelt basins scored by transfer from live weather, and are flagged
+            accordingly in every forecast.</p>
+          <table class="attrs">
+            <thead><tr><th>Attribute</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>id</td><td class="ty">string</td><td>Stable identifier, e.g. <code>petropavl</code>.</td></tr>
+              <tr><td>name</td><td class="ty">string</td><td>Gauge / town name.</td></tr>
+              <tr><td>river</td><td class="ty">string</td><td>River, e.g. <code>Ishim (Esil)</code>.</td></tr>
+              <tr><td>country</td><td class="ty">string</td><td>ISO country, <code>KZ</code> or <code>RU</code>.</td></tr>
+              <tr><td>latitude / longitude</td><td class="ty">float</td><td>Point used to query Open-Meteo.</td></tr>
+              <tr><td>flood_season</td><td class="ty">int[]</td><td>Months snowmelt flooding is plausible, e.g. <code>[3,4,5]</code>.</td></tr>
+              <tr><td>is_anchor</td><td class="ty">bool</td><td><code>true</code> only for Petropavl.</td></tr>
+              <tr><td>notes</td><td class="ty">string</td><td>Free-text context.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Basin</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"id"</span><span class="tk-punc">:</span> <span class="tk-str">"atbasar"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"name"</span><span class="tk-punc">:</span> <span class="tk-str">"Atbasar"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"river"</span><span class="tk-punc">:</span> <span class="tk-str">"Zhabay"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"country"</span><span class="tk-punc">:</span> <span class="tk-str">"KZ"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"latitude"</span><span class="tk-punc">:</span> <span class="tk-num">51.8</span><span class="tk-punc">,</span>
+  <span class="tk-key">"longitude"</span><span class="tk-punc">:</span> <span class="tk-num">68.33</span><span class="tk-punc">,</span>
+  <span class="tk-key">"flood_season"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span><span class="tk-num">3</span><span class="tk-punc">,</span> <span class="tk-num">4</span><span class="tk-punc">]</span><span class="tk-punc">,</span>
+  <span class="tk-key">"is_anchor"</span><span class="tk-punc">:</span> <span class="tk-bool">false</span><span class="tk-punc">,</span>
+  <span class="tk-key">"notes"</span><span class="tk-punc">:</span> <span class="tk-str">"Severe 2024 spring floods."</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+          <div class="note"><span class="ni">i</span><span>The six basins: <code>petropavl</code>, <code>nur-sultan</code>
+            (Astana), <code>atbasar</code>, <code>kokshetau</code>, <code>oral</code>, <code>kurgan</code>.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- observation object -->
+    <section class="doc-section" id="observation-object">
+      <div class="split">
+        <div>
+          <p class="doc-ey">Core object</p>
+          <h2 class="doc-h2">The Observation object</h2>
+          <p>One month of hydro-meteorological readings for a single basin. You supply a chronological list of
+            these to <code>/predict</code>; the model derives lags, rolling windows and seasonal terms from the
+            window, so <b>at least 13 months</b> is recommended. Any field may be <code>null</code> — missing
+            river levels are imputed and flagged.</p>
+          <table class="attrs">
+            <thead><tr><th>Field</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>year</td><td class="ty">int</td><td>Required. <code>1990–2100</code>.</td></tr>
+              <tr><td>month</td><td class="ty">int</td><td>Required. <code>1–12</code>.</td></tr>
+              <tr><td>river_level_mean</td><td class="ty">float?</td><td>Mean river level (cm).</td></tr>
+              <tr><td>river_level_max</td><td class="ty">float?</td><td>Max river level (cm).</td></tr>
+              <tr><td>snow_cover</td><td class="ty">float?</td><td>Snow-cover index — the dominant signal.</td></tr>
+              <tr><td>soil_moisture</td><td class="ty">float?</td><td>Soil-moisture index.</td></tr>
+              <tr><td>temperature</td><td class="ty">float?</td><td>Mean temperature (°C).</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">MonthlyObservation</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"year"</span><span class="tk-punc">:</span> <span class="tk-num">2024</span><span class="tk-punc">,</span>
+  <span class="tk-key">"month"</span><span class="tk-punc">:</span> <span class="tk-num">3</span><span class="tk-punc">,</span>
+  <span class="tk-key">"river_level_mean"</span><span class="tk-punc">:</span> <span class="tk-num">412.0</span><span class="tk-punc">,</span>
+  <span class="tk-key">"river_level_max"</span><span class="tk-punc">:</span> <span class="tk-num">505.0</span><span class="tk-punc">,</span>
+  <span class="tk-key">"snow_cover"</span><span class="tk-punc">:</span> <span class="tk-num">78.0</span><span class="tk-punc">,</span>
+  <span class="tk-key">"soil_moisture"</span><span class="tk-punc">:</span> <span class="tk-num">0.34</span><span class="tk-punc">,</span>
+  <span class="tk-key">"temperature"</span><span class="tk-punc">:</span> <span class="tk-num">-4.2</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== ENDPOINTS ===================== -->
+
+    <!-- health -->
+    <section class="doc-section" id="health">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-get">GET</span><span class="path">/health</span></div>
+          <p>Liveness and readiness in one call. Reports whether the model artifacts are loaded, whether the
+            isotonic calibrator is present, and how many features and basins are available. Returns
+            <code>status: "ok"</code> when ready and <code>"degraded"</code> otherwise.</p>
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px">A <code>HealthResponse</code> with <code>status</code>,
+            <code>model_loaded</code>, <code>calibrated</code>, <code>model_version</code>,
+            <code>n_features</code> and <code>n_basins</code>.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/health</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"status"</span><span class="tk-punc">:</span> <span class="tk-str">"ok"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_loaded"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"calibrated"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_version"</span><span class="tk-punc">:</span> <span class="tk-str">"tasqyn-xgboost-1.1.1"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_features"</span><span class="tk-punc">:</span> <span class="tk-num">44</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_basins"</span><span class="tk-punc">:</span> <span class="tk-num">6</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- basins -->
+    <section class="doc-section" id="basins">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-get">GET</span><span class="path">/basins</span></div>
+          <p>List every river basin Tasqyn can forecast. Use the returned <code>id</code> values with
+            <code>/forecast/live</code> or as the optional <code>basin_id</code> on <code>/predict</code>.</p>
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px">An array of <a href="#basin-object" class="lnk">Basin</a> objects.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/basins</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
+<pre><code class="json"><span class="tk-punc">[</span>
+  <span class="tk-punc">{</span>
+    <span class="tk-key">"id"</span><span class="tk-punc">:</span> <span class="tk-str">"petropavl"</span><span class="tk-punc">,</span>
+    <span class="tk-key">"name"</span><span class="tk-punc">:</span> <span class="tk-str">"Petropavl"</span><span class="tk-punc">,</span>
+    <span class="tk-key">"river"</span><span class="tk-punc">:</span> <span class="tk-str">"Ishim (Esil)"</span><span class="tk-punc">,</span>
+    <span class="tk-key">"country"</span><span class="tk-punc">:</span> <span class="tk-str">"KZ"</span><span class="tk-punc">,</span>
+    <span class="tk-key">"is_anchor"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+    <span class="tk-key">"flood_season"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span><span class="tk-num">3</span><span class="tk-punc">,</span><span class="tk-num">4</span><span class="tk-punc">,</span><span class="tk-num">5</span><span class="tk-punc">]</span>
+  <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-com">/* … 5 more basins … */</span>
+<span class="tk-punc">]</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- predict -->
+    <section class="doc-section" id="predict">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-post">POST</span><span class="path">/predict</span></div>
+          <p>Score the most recent month in a supplied observation window. This is the low-level endpoint:
+            you bring your own data, Tasqyn engineers the features, runs the model and returns one calibrated
+            <a href="#forecast-object" class="lnk">Forecast</a>. The result is also appended to
+            <a href="#history" class="lnk">/history</a>.</p>
+
+          <p class="params-title">Body parameters</p>
+          <div class="params">
+            <div class="param">
+              <div class="pl"><span class="pn">history</span><span class="pt">Observation[]</span><span class="req">required</span></div>
+              <div class="pd">Chronologically ordered <a href="#observation-object" class="lnk">observations</a>.
+                The last entry is the month scored; at least 13 months is recommended so lags and rolling
+                windows are well-defined.</div>
+            </div>
+            <div class="param">
+              <div class="pl"><span class="pn">basin_id</span><span class="pt">string</span><span class="opt">optional</span></div>
+              <div class="pd">A basin id from <code>/basins</code>. Used to label the forecast and to set the
+                reliability flags (anchor vs transfer). Returns <code>404</code> if unknown.</div>
+            </div>
+          </div>
+
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px">A single <a href="#forecast-object" class="lnk">Forecast</a>, or
+            <code>503</code> if the model is not loaded, or <code>400</code> if the window cannot be scored.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/predict</span> <span class="sh-punc">\</span>
+  <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
+  <span class="sh-flag">-d</span> <span class="sh-str">'{
+    "basin_id": "petropavl",
+    "history": [
+      { "year": 2023, "month": 4, "snow_cover": 12,
+        "temperature": 6.1, "river_level_max": 430 },
+      "… 12+ earlier months …",
+      { "year": 2024, "month": 3, "snow_cover": 78,
+        "temperature": -4.2, "river_level_max": 505 }
+    ]
+  }'</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK · Forecast</div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"basin_id"</span><span class="tk-punc">:</span> <span class="tk-str">"petropavl"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"year"</span><span class="tk-punc">:</span> <span class="tk-num">2024</span><span class="tk-punc">,</span> <span class="tk-key">"month"</span><span class="tk-punc">:</span> <span class="tk-num">3</span><span class="tk-punc">,</span>
+  <span class="tk-key">"flood_probability"</span><span class="tk-punc">:</span> <span class="tk-num">0.82</span><span class="tk-punc">,</span>
+  <span class="tk-key">"risk"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"label"</span><span class="tk-punc">:</span> <span class="tk-str">"high"</span><span class="tk-punc">,</span> <span class="tk-key">"color"</span><span class="tk-punc">:</span> <span class="tk-str">"#ef4444"</span> <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-key">"is_flood_predicted"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"provenance"</span><span class="tk-punc">:</span> <span class="tk-str">"user-supplied"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"model_version"</span><span class="tk-punc">:</span> <span class="tk-str">"tasqyn-xgboost-1.1.1"</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- forecast live -->
+    <section class="doc-section" id="forecast-live">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-get">GET</span><span class="path">/forecast/live</span></div>
+          <p>The high-level endpoint, and the one most clients use. Give it a basin and a horizon; Tasqyn
+            fetches live weather from the open Open-Meteo ERA5 archive (no key), builds the observation window
+            for you, and returns a calibrated forecast for each of the next <code>horizon</code> months —
+            each a full <a href="#forecast-object" class="lnk">Forecast</a> with a confidence interval.</p>
+
+          <p class="params-title">Query parameters</p>
+          <div class="params">
+            <div class="param">
+              <div class="pl"><span class="pn">basin_id</span><span class="pt">string</span><span class="opt">default "petropavl"</span></div>
+              <div class="pd">A basin id from <code>/basins</code>. <code>404</code> if unknown.</div>
+            </div>
+            <div class="param">
+              <div class="pl"><span class="pn">horizon</span><span class="pt">int</span><span class="opt">default 3 · 1–6</span></div>
+              <div class="pd">How many months ahead to forecast.</div>
+            </div>
+          </div>
+
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px">A <code>LiveForecastResponse</code>: the resolved
+            <code>basin</code>, the <code>horizon</code>, and a <code>forecasts</code> array. Returns
+            <code>502</code> if live weather is unavailable.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.tasqyn.trest.me/forecast/live?\
+basin_id=oral&horizon=3"</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK · LiveForecastResponse</div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"basin"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"id"</span><span class="tk-punc">:</span> <span class="tk-str">"oral"</span><span class="tk-punc">,</span> <span class="tk-key">"river"</span><span class="tk-punc">:</span> <span class="tk-str">"Ural (Zhayyq)"</span> <span class="tk-punc">}</span><span class="tk-punc">,</span>
+  <span class="tk-key">"horizon"</span><span class="tk-punc">:</span> <span class="tk-num">3</span><span class="tk-punc">,</span>
+  <span class="tk-key">"forecasts"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span>
+    <span class="tk-punc">{</span>
+      <span class="tk-key">"month"</span><span class="tk-punc">:</span> <span class="tk-num">4</span><span class="tk-punc">,</span>
+      <span class="tk-key">"flood_probability"</span><span class="tk-punc">:</span> <span class="tk-num">0.71</span><span class="tk-punc">,</span>
+      <span class="tk-key">"confidence_interval"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"lower"</span><span class="tk-punc">:</span> <span class="tk-num">0.4</span><span class="tk-punc">,</span> <span class="tk-key">"upper"</span><span class="tk-punc">:</span> <span class="tk-num">0.9</span> <span class="tk-punc">}</span><span class="tk-punc">,</span>
+      <span class="tk-key">"risk"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"label"</span><span class="tk-punc">:</span> <span class="tk-str">"high"</span> <span class="tk-punc">}</span><span class="tk-punc">,</span>
+      <span class="tk-key">"reliability"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span> <span class="tk-key">"transfer"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span> <span class="tk-punc">}</span>
+    <span class="tk-punc">}</span><span class="tk-punc">,</span>
+    <span class="tk-com">/* … months 5, 6 … */</span>
+  <span class="tk-punc">]</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- history -->
+    <section class="doc-section" id="history">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-get">GET</span><span class="path">/history</span></div>
+          <p>Return the most recent forecasts the service has produced, newest first. The store is an
+            in-memory ring buffer (the reference build keeps the last 200), so this is a convenience for the
+            app rather than a system of record.</p>
+          <p class="params-title">Query parameters</p>
+          <div class="params">
+            <div class="param">
+              <div class="pl"><span class="pn">limit</span><span class="pt">int</span><span class="opt">default 20</span></div>
+              <div class="pd">Maximum number of items to return.</div>
+            </div>
+          </div>
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px">A <code>HistoryResponse</code> with <code>items</code> (each a Forecast plus
+            an <code>id</code>) and a <code>count</code>.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.tasqyn.trest.me/history?limit=5"</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"items"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span>
+    <span class="tk-punc">{</span> <span class="tk-key">"id"</span><span class="tk-punc">:</span> <span class="tk-str">"a3f1…"</span><span class="tk-punc">,</span> <span class="tk-key">"basin_id"</span><span class="tk-punc">:</span> <span class="tk-str">"oral"</span><span class="tk-punc">,</span>
+      <span class="tk-key">"flood_probability"</span><span class="tk-punc">:</span> <span class="tk-num">0.71</span> <span class="tk-punc">}</span>
+  <span class="tk-punc">]</span><span class="tk-punc">,</span>
+  <span class="tk-key">"count"</span><span class="tk-punc">:</span> <span class="tk-num">1</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- clear history -->
+    <section class="doc-section" id="clear-history">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-del">DELETE</span><span class="path">/history</span></div>
+          <p>Clear the in-memory forecast history. Returns a small acknowledgement.</p>
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px"><code>{ "cleared": true }</code>.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-flag">-X</span> DELETE <span class="sh-url">https://api.tasqyn.trest.me/history</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
+<pre><code class="json"><span class="tk-punc">{</span> <span class="tk-key">"cleared"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span> <span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- push register -->
+    <section class="doc-section" id="push-register">
+      <div class="split">
+        <div>
+          <div class="endpoint-head"><span class="m-tag m-post">POST</span><span class="path">/push/register</span></div>
+          <p>Register a device push token so Tasqyn can alert it when a basin's risk turns high. Tokens are
+            stored by token value, so re-registering the same device is idempotent.</p>
+          <p class="params-title">Body parameters</p>
+          <div class="params">
+            <div class="param">
+              <div class="pl"><span class="pn">token</span><span class="pt">string</span><span class="req">required</span></div>
+              <div class="pd">An Expo, FCM or APNs push token.</div>
+            </div>
+            <div class="param">
+              <div class="pl"><span class="pn">basin_id</span><span class="pt">string</span><span class="opt">optional</span></div>
+              <div class="pd">Subscribe the device to a specific basin.</div>
+            </div>
+            <div class="param">
+              <div class="pl"><span class="pn">platform</span><span class="pt">string</span><span class="opt">optional</span></div>
+              <div class="pd">One of <code>ios</code>, <code>android</code>, <code>web</code>.</div>
+            </div>
+          </div>
+          <p class="params-title">Returns</p>
+          <p style="margin-top:8px"><code>{ "registered": true, "total_devices": n }</code>.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/push/register</span> <span class="sh-punc">\</span>
+  <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
+  <span class="sh-flag">-d</span> <span class="sh-str">'{
+    "token": "ExponentPushToken[xxx]",
+    "basin_id": "petropavl",
+    "platform": "android"
+  }'</span></code></pre>
+          </div>
+          <div class="code-block">
+            <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
+<pre><code class="json"><span class="tk-punc">{</span> <span class="tk-key">"registered"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span> <span class="tk-key">"total_devices"</span><span class="tk-punc">:</span> <span class="tk-num">1</span> <span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===================== THE MODEL ===================== -->
+
+    <!-- model card -->
+    <section class="doc-section" id="model">
+      <div class="split">
+        <div>
+          <p class="doc-ey">The model</p>
+          <h2 class="doc-h2">Model card</h2>
+          <p>Tasqyn is a gradient-boosted decision-tree classifier (XGBoost) trained on the Petropavl record of
+            the Ishim (Esil), 1995–2024. It predicts whether a given month will flood from
+            <b>leakage-free engineered features</b>: lags, rolling statistics, first differences and cyclical
+            month encoding over five raw monthly inputs (river level mean/max, snow cover, soil moisture,
+            temperature). Rolling windows are shifted by a month so a month can never peek at itself — a
+            property a dedicated test locks in.</p>
+          <p>We report the <b>honest</b> score, not the flattering one. On a naive split the model reaches
+            ROC-AUC&nbsp;1.00, which is meaningless on so few events; we keep it only as a cautionary number.
+            The headline figures below come from <b>leave-one-year-out walk-forward</b> validation, where the
+            model is retrained for each held-out year and never sees the future.</p>
+          <table class="attrs">
+            <thead><tr><th>Metric</th><th>Value</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>ROC-AUC</td><td class="ty">0.91</td><td>Walk-forward, leave-one-year-out (2018–2024).</td></tr>
+              <tr><td>PR-AUC</td><td class="ty">0.72</td><td>Fairer than ROC at a ~17% base rate.</td></tr>
+              <tr><td>Recall</td><td class="ty">10 / 14</td><td>Floods caught across held-out years.</td></tr>
+              <tr><td>False alarms</td><td class="ty">1 / 70</td><td>Non-flood months wrongly flagged.</td></tr>
+              <tr><td>F1 (optimal)</td><td class="ty">0.80</td><td>At the tuned decision threshold.</td></tr>
+              <tr><td>Top feature</td><td class="ty">0.53</td><td><code>snow_cover_lag4</code> — snowpack 4 months before the flood.</td></tr>
+            </tbody>
+          </table>
+          <p style="margin-top:14px">That top feature is the result we trust most: with no hydrology coded in,
+            the model independently rediscovered that a spring flood depends most on the snow that fell about
+            four months earlier — the textbook snowmelt mechanism.</p>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">Honest metrics · walk-forward</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"protocol"</span><span class="tk-punc">:</span> <span class="tk-str">"leave-one-year-out walk-forward"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"held_out_years"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span><span class="tk-num">2018</span><span class="tk-punc">,</span> <span class="tk-num">…</span><span class="tk-punc">,</span> <span class="tk-num">2024</span><span class="tk-punc">]</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_samples"</span><span class="tk-punc">:</span> <span class="tk-num">84</span><span class="tk-punc">,</span>
+  <span class="tk-key">"n_floods"</span><span class="tk-punc">:</span> <span class="tk-num">14</span><span class="tk-punc">,</span>
+  <span class="tk-key">"base_rate"</span><span class="tk-punc">:</span> <span class="tk-num">0.167</span><span class="tk-punc">,</span>
+  <span class="tk-key">"roc_auc"</span><span class="tk-punc">:</span> <span class="tk-num">0.914</span><span class="tk-punc">,</span>
+  <span class="tk-key">"pr_auc"</span><span class="tk-punc">:</span> <span class="tk-num">0.717</span><span class="tk-punc">,</span>
+  <span class="tk-key">"f1_at_optimal"</span><span class="tk-punc">:</span> <span class="tk-num">0.80</span><span class="tk-punc">,</span>
+  <span class="tk-key">"confusion_matrix"</span><span class="tk-punc">:</span> <span class="tk-punc">[[</span><span class="tk-num">69</span><span class="tk-punc">,</span> <span class="tk-num">1</span><span class="tk-punc">]</span><span class="tk-punc">,</span> <span class="tk-punc">[</span><span class="tk-num">4</span><span class="tk-punc">,</span> <span class="tk-num">10</span><span class="tk-punc">]]</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+          <div class="note"><span class="ni">i</span><span>Figures, ROC/PR curves and the confusion matrix are on the
+            <a href="index.html#results" class="lnk">overview page</a>.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- risk bands -->
+    <section class="doc-section" id="risk-bands">
+      <div class="split">
+        <div>
+          <p class="doc-ey">The model</p>
+          <h2 class="doc-h2">Risk bands</h2>
+          <p>Every forecast carries a human-facing <code>risk</code> band derived from the calibrated
+            probability, so a UI can colour it without re-implementing thresholds. Bands are inclusive of their
+            lower bound.</p>
+          <table class="attrs">
+            <thead><tr><th>Label</th><th>Probability</th><th>Color</th></tr></thead>
+            <tbody>
+              <tr><td>low</td><td class="ty">&lt; 0.33</td><td><code>#22c55e</code> green</td></tr>
+              <tr><td>moderate</td><td class="ty">0.33 – 0.66</td><td><code>#f59e0b</code> amber</td></tr>
+              <tr><td>high</td><td class="ty">≥ 0.66</td><td><code>#ef4444</code> red</td></tr>
+            </tbody>
+          </table>
+          <div class="note warn"><span class="ni">!</span><span>The band is for display. The boolean
+            <code>is_flood_predicted</code> uses the separate <code>threshold</code> field, which a caller can
+            tune to trade recall against false alarms.</span></div>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">risk</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"label"</span><span class="tk-punc">:</span> <span class="tk-str">"high"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"color"</span><span class="tk-punc">:</span> <span class="tk-str">"#ef4444"</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- reliability -->
+    <section class="doc-section" id="reliability">
+      <div class="split">
+        <div>
+          <p class="doc-ey">The model</p>
+          <h2 class="doc-h2">Reliability &amp; calibration</h2>
+          <p>Probabilities are calibrated with isotonic regression fitted on out-of-sample scores, and the 90%
+            interval comes from a 15-model bootstrap ensemble — so the numbers mean what they say and carry
+            their own uncertainty.</p>
+          <p>Because the model is trained on one anchor basin, Tasqyn is explicit about when a forecast is a
+            stretch. Every forecast carries a <code>reliability</code> object you should surface to users.</p>
+          <table class="attrs">
+            <thead><tr><th>Field</th><th>Type</th><th></th></tr></thead>
+            <tbody>
+              <tr><td>in_distribution</td><td class="ty">bool</td><td><code>true</code> when inputs are in range and it's the anchor basin.</td></tr>
+              <tr><td>transfer</td><td class="ty">bool</td><td><code>true</code> for non-anchor basins scored by transfer — treat as indicative.</td></tr>
+              <tr><td>out_of_range_features</td><td class="ty">string[]</td><td>Inputs beyond the training range; non-empty means extrapolation.</td></tr>
+              <tr><td>river_level_imputed</td><td class="ty">bool</td><td><code>true</code> when missing river levels were filled in.</td></tr>
+              <tr><td>note</td><td class="ty">string</td><td>Plain-language summary, ready to show.</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="code-col">
+          <div class="code-block">
+            <div class="code-head"><span class="ct">reliability · transfer basin</span></div>
+<pre><code class="json"><span class="tk-punc">{</span>
+  <span class="tk-key">"in_distribution"</span><span class="tk-punc">:</span> <span class="tk-bool">false</span><span class="tk-punc">,</span>
+  <span class="tk-key">"transfer"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"out_of_range_features"</span><span class="tk-punc">:</span> <span class="tk-punc">[</span><span class="tk-str">"snow_cover"</span><span class="tk-punc">]</span><span class="tk-punc">,</span>
+  <span class="tk-key">"river_level_imputed"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
+  <span class="tk-key">"note"</span><span class="tk-punc">:</span> <span class="tk-str">"transfer basin — indicative only"</span>
+<span class="tk-punc">}</span></code></pre>
+          </div>
+          <div class="note"><span class="ni">i</span><span>Calibration status is reported live at
+            <a href="#health" class="lnk">/health</a> via the <code>calibrated</code> flag.</span></div>
+        </div>
+      </div>
+    </section>
+
+    <footer class="doc-foot">
+      <span>Tasqyn API · v1.1.0 · model tasqyn-xgboost-1.1.1</span>
+      <span>FloodCast · Ishim (Esil) basin · Northern Kazakhstan</span>
+    </footer>
+
+  </main>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  // mobile sidebar
+  var burger = document.getElementById('docBurger');
+  var side = document.getElementById('docSide');
+  if (burger && side) {
+    burger.addEventListener('click', function () { side.classList.toggle('open'); });
+    side.addEventListener('click', function (e) { if (e.target.tagName === 'A') side.classList.remove('open'); });
+  }
+  // scroll-spy: highlight the current section in the sidebar
+  var links = Array.prototype.slice.call(document.querySelectorAll('.doc-side a[href^="#"]'));
+  var map = {};
+  links.forEach(function (a) { var id = a.getAttribute('href').slice(1); if (id) map[id] = a; });
+  var spy = new IntersectionObserver(function (entries) {
+    entries.forEach(function (en) {
+      if (!en.isIntersecting) return;
+      var a = map[en.target.id];
+      if (!a) return;
+      links.forEach(function (l) { l.classList.remove('on'); });
+      a.classList.add('on');
+    });
+  }, { rootMargin: '-15% 0px -75% 0px' });
+  document.querySelectorAll('.doc-section[id]').forEach(function (s) { spy.observe(s); });
+  // copy buttons
+  document.querySelectorAll('.copy').forEach(function (btn) {
+    btn.addEventListener('click', function () {
+      var pre = btn.closest('.code-block').querySelector('pre');
+      if (!pre) return;
+      navigator.clipboard && navigator.clipboard.writeText(pre.innerText).then(function () {
+        var old = btn.textContent; btn.textContent = 'Copied'; setTimeout(function () { btn.textContent = old; }, 1400);
+      });
+    });
+  });
+})();
+</script>
+</body>
+</html>

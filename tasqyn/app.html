@@ -1,0 +1,184 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Приложение Tasqyn</title>
+<meta name="description" content="Мобильное приложение Tasqyn: карта риска паводков по бассейнам, прогноз на 1–3 месяца с доверительным интервалом, push-уведомления, история и офлайн-режим. Скачать APK." />
+<link rel="icon" href="assets/icon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<link rel="stylesheet" href="styles.css" />
+</head>
+<body class="apppage-body">
+
+<!-- NAV -->
+<nav id="nav">
+  <div class="wrap">
+    <a class="brand" href="index.html#top" aria-label="Tasqyn">
+      <svg class="logo" viewBox="0 0 178 36" role="img" aria-label="Tasqyn">
+        <defs><linearGradient id="lgm" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
+        <rect x="2" y="3" width="30" height="30" rx="9" fill="url(#lgm)"/>
+        <path d="M8.5 21 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#eaf7ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M8.5 15.5 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#bfe6fb" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+        <text x="43" y="26" class="wordmark" fill="currentColor">Tasqyn</text>
+      </svg>
+    </a>
+    <div class="navlinks">
+      <a href="index.html#problem" data-en="Problem">Проблема</a>
+      <a href="index.html#model" data-en="Model">Модель</a>
+      <a href="index.html#results" data-en="Results">Результаты</a>
+      <a href="index.html#map" data-en="Data">Данные</a>
+      <a href="app.html" data-en="App">Приложение</a>
+      <a href="docs.html" data-en="Docs">Документация</a>
+      <button class="lang-toggle" id="langToggle" aria-label="Switch language">EN</button>
+    </div>
+    <button class="nav-burger" id="navBurger" aria-label="Меню" aria-expanded="false"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<main class="apppage">
+
+  <section class="app-hero">
+    <h1 data-en="The Tasqyn app">Приложение Tasqyn</h1>
+    <p class="dek" data-en="A per-basin flood-risk map, a 1–3 month forecast with a confidence interval, push alerts when risk is high, history and an offline mode. Every number comes from the model through the API.">Карта риска паводков по бассейнам, прогноз на 1–3 месяца с доверительным интервалом, пуши при высоком риске, история и офлайн-режим. Все цифры приходят из модели через API.</p>
+    <div class="cta-row">
+      <a class="btn btn-apk" href="assets/tasqyn.apk" download data-en="Download APK">Скачать APK</a>
+      <a class="btn btn-soft" href="index.html" data-en="Back to the site">Вернуться на сайт</a>
+    </div>
+  </section>
+
+  <!-- current screenshots (same mockups as on the site) -->
+  <div class="phones-wrap">
+    <div class="phones">
+      <div class="phone">
+        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
+          <div class="app-head"><div class="app-title" data-en="Risk map">Карта риска</div><div class="app-sub" data-en="peak risk · 3 months">пиковый риск · 3 месяца</div></div>
+          <div class="map-mock">
+            <span class="pin high" style="left:36%;top:30%">78</span>
+            <span class="pin amber" style="left:62%;top:48%">41</span>
+            <span class="pin high" style="left:28%;top:60%">71</span>
+            <span class="pin safe" style="left:74%;top:28%">12</span>
+            <span class="pin amber" style="left:54%;top:70%">38</span>
+          </div>
+          <div class="tabbar"><span class="t on" data-en="Map">Карта</span><span class="t" data-en="Forecast">Прогноз</span><span class="t" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
+          <div class="app-head grad"><div class="app-title">Петропавл</div><div class="app-sub" data-en="Ishim (Esil)">Ишим (Есиль)</div></div>
+          <div class="app-body">
+            <div class="pill-row"><b class="on">Петропавл</b><b data-en="Astana">Астана</b><b data-en="Oral">Орал</b></div>
+            <div class="gauge-mock">
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="62" fill="none" stroke="#e3edf2" stroke-width="11"/>
+                <circle cx="75" cy="75" r="62" fill="none" stroke="#d2452c" stroke-width="11" stroke-linecap="round"
+                        stroke-dasharray="389.6" stroke-dashoffset="85.7" transform="rotate(-90 75 75)"/>
+              </svg>
+              <div class="gv">78%</div>
+            </div>
+            <div class="ci-line" data-en="90% CI 55–93% · HIGH RISK">90% ДИ 55–93% · РИСК ВЫСОКИЙ</div>
+            <div class="frow"><span data-en="Apr 2027">Апр 2027</span><span class="fp high">78%</span><i class="ft"><b style="width:78%;background:#d2452c"></b></i></div>
+            <div class="frow"><span data-en="Mar 2027">Мар 2027</span><span class="fp amber">44%</span><i class="ft"><b style="width:44%;background:#e0a020"></b></i></div>
+            <div class="frow"><span data-en="May 2027">Май 2027</span><span class="fp amber">36%</span><i class="ft"><b style="width:36%;background:#e0a020"></b></i></div>
+          </div>
+          <div class="tabbar"><span class="t" data-en="Map">Карта</span><span class="t on" data-en="Forecast">Прогноз</span><span class="t" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
+        </div>
+      </div>
+      <div class="phone">
+        <div class="screen"><div class="bar"><span class="dot-cam"></span></div>
+          <div class="app-head"><div class="app-title" data-en="History">История</div><div class="app-sub" data-en="saved forecasts">сохранённые прогнозы</div></div>
+          <div class="app-body">
+            <div class="hrow"><span data-en="Apr 2027 · Petropavl">Апр 2027 · Петропавл</span><span class="fp high">78%</span></div>
+            <div class="hrow"><span data-en="Apr 2027 · Atbasar">Апр 2027 · Атбасар</span><span class="fp high">71%</span></div>
+            <div class="hrow"><span data-en="Mar 2027 · Astana">Мар 2027 · Астана</span><span class="fp amber">41%</span></div>
+            <div class="hrow"><span data-en="Apr 2027 · Oral">Апр 2027 · Орал</span><span class="fp amber">49%</span></div>
+            <div class="hrow"><span data-en="May 2027 · Kurgan">Май 2027 · Курган</span><span class="fp safe">12%</span></div>
+          </div>
+          <div class="tabbar"><span class="t" data-en="Map">Карта</span><span class="t" data-en="Forecast">Прогноз</span><span class="t on" data-en="History">История</span><span class="t" data-en="More">Ещё</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- features -->
+  <div class="app-features">
+    <div class="unified wide">
+      <div class="u-item">
+        <h3 data-en="Risk map">Карта риска</h3>
+        <p data-en="Every basin on one map. A point's colour shows the peak flood risk for the next three months, so you see the whole picture at a glance.">Все бассейны на одной карте. Цвет точки показывает пиковый риск паводка на ближайшие три месяца, так что вся картина видна сразу.</p>
+      </div>
+      <div class="u-item">
+        <h3 data-en="Forecast with an interval">Прогноз с интервалом</h3>
+        <p data-en="For each basin: the probability of flooding for the coming months, plus a 90% confidence interval, so you also see how sure the model is.">По каждому бассейну: вероятность паводка на ближайшие месяцы и 90% доверительный интервал, чтобы было видно, насколько модель уверена.</p>
+      </div>
+      <div class="u-item">
+        <h3 data-en="Alerts and offline">Уведомления и офлайн</h3>
+        <p data-en="A push notification when risk goes high, a saved history of forecasts, and an offline mode that keeps the last data when there is no network.">Push при высоком риске, сохранённая история прогнозов и офлайн-режим, который держит последние данные, когда сети нет.</p>
+      </div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="brand foot">
+      <svg class="logo" viewBox="0 0 178 36" role="img" aria-label="Tasqyn">
+        <defs><linearGradient id="lgmf" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#0ea5e9"/><stop offset="1" stop-color="#1e3a8a"/></linearGradient></defs>
+        <rect x="2" y="3" width="30" height="30" rx="9" fill="url(#lgmf)"/>
+        <path d="M8.5 21 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#eaf7ff" stroke-width="2.6" fill="none" stroke-linecap="round"/>
+        <path d="M8.5 15.5 q4.5 -6.5 9 0 q4.5 6.5 9 0" stroke="#bfe6fb" stroke-width="2.4" fill="none" stroke-linecap="round" opacity=".9"/>
+        <text x="43" y="26" class="wordmark" fill="currentColor">Tasqyn</text>
+      </svg>
+    </div>
+    <div class="tagline" data-en="Flood forecasting for the people who live along these rivers.">Прогноз паводков для людей, живущих вдоль этих рек.</div>
+    <div class="meta" data-en="FloodCast · flood-forecasting model · Ishim (Esil) river basin<br/>observations 1995–2024 · Northern Kazakhstan">FloodCast · модель прогноза паводков · бассейн реки Ишим (Есиль)<br/>данные наблюдений 1995–2024 · Северный Казахстан</div>
+  </div>
+</footer>
+
+<script>
+// lightweight i18n + reveal for the standalone app page
+(function () {
+  'use strict';
+  var LANG = 'en';
+  try { if (localStorage.getItem('tasqyn-lang') === 'ru') LANG = 'ru'; } catch (e) {}
+  function applyStatic() {
+    document.querySelectorAll('[data-en]').forEach(function (n) {
+      if (n.dataset.ru === undefined) n.dataset.ru = n.innerHTML;
+      n.innerHTML = LANG === 'en' ? n.dataset.en : n.dataset.ru;
+    });
+    document.documentElement.lang = LANG;
+  }
+  var btn = document.getElementById('langToggle');
+  function sync() { if (btn) btn.textContent = LANG === 'ru' ? 'EN' : 'RU'; }
+  applyStatic(); sync();
+  if (btn) btn.addEventListener('click', function () {
+    LANG = LANG === 'ru' ? 'en' : 'ru';
+    try { localStorage.setItem('tasqyn-lang', LANG); } catch (e) {}
+    applyStatic(); sync();
+  });
+  // mobile menu
+  var burger = document.getElementById('navBurger');
+  var links = document.querySelector('.navlinks');
+  if (burger && links) {
+    burger.addEventListener('click', function () {
+      var open = links.classList.toggle('open');
+      burger.classList.toggle('open', open);
+      burger.setAttribute('aria-expanded', open);
+    });
+    links.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { links.classList.remove('open'); burger.classList.remove('open'); });
+    });
+  }
+  // scroll reveal
+  document.querySelectorAll('.app-hero, .phone, .unified').forEach(function (n) { n.classList.add('reveal'); });
+  var io = new IntersectionObserver(function (es) {
+    es.forEach(function (e) { if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } });
+  }, { threshold: 0.12 });
+  document.querySelectorAll('.reveal').forEach(function (n) { io.observe(n); });
+})();
+</script>
+</body>
+</html>
