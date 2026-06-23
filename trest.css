@@ -83,8 +83,24 @@ footer .links a:hover{color:var(--accent)}
 @media(prefers-reduced-motion:reduce){.rv{opacity:1;transform:none}}
 
 @media(max-width:560px){
-  .top .row{height:60px}
-  main{padding-top:44px}
-  .label{margin-top:54px}
-  .item{padding:26px 0}
+  /* use more of the narrow screen so text isn't cramped */
+  .top .row,main,footer{width:min(720px,94vw)}
+  .top .row{height:58px}
+  main{padding-top:40px}
+  .label{margin-top:50px}
+  .item{padding:24px 0}
+  .item p,.item.lead p{font-size:15.5px}
+  .intro{font-size:clamp(20px,5.6vw,26px)}
+  .item h2,.item.lead h2{font-size:clamp(22px,6.4vw,30px)}
+  .item h3{font-size:clamp(18px,5vw,21px)}
+  /* footer stacks instead of squeezing onto one row */
+  footer{flex-direction:column;align-items:flex-start;gap:12px}
+}
+
+/* very small / older Androids */
+@media(max-width:360px){
+  .wordmark .wm-text{font-size:21px}
+  .wordmark .mark{width:26px;height:26px}
+  .intro{font-size:19px}
+  .item h2,.item.lead h2{font-size:21px}
 }

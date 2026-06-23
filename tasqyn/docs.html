@@ -286,7 +286,7 @@ code.json,code.sh{font-family:var(--mono)}
           <h2 class="doc-h2">Base URL</h2>
           <p>All endpoints are served from a single host and addressed by path. There is no resource
             prefix — paths such as <code>/predict</code> sit at the root.</p>
-          <div class="base-url"><b>POST</b> https://api.trest.me/predict</div>
+          <div class="base-url"><b>POST</b> https://tasqyn-api.onrender.com/predict</div>
           <p style="margin-top:16px">Running the service yourself? The reference server is a FastAPI app
             (<code>uvicorn api.main:app</code>) that listens on <code>http://127.0.0.1:8000</code> by default
             and ships interactive Swagger UI at <code>/docs</code> and a raw schema at <code>/openapi.json</code>.</p>
@@ -321,7 +321,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Authenticated request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> https://api.trest.me/basins <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> https://tasqyn-api.onrender.com/basins <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Authorization: Bearer $TASQYN_KEY"</span></code></pre>
           </div>
         </div>
@@ -561,7 +561,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/health</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://tasqyn-api.onrender.com/health</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -591,7 +591,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/basins</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://tasqyn-api.onrender.com/basins</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -643,7 +643,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/predict</span> <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://tasqyn-api.onrender.com/predict</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-d</span> <span class="sh-str">'{
     "basin_id": "petropavl",
@@ -704,7 +704,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.trest.me/forecast/live?\
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://tasqyn-api.onrender.com/forecast/live?\
 basin_id=oral&horizon=3"</span></code></pre>
           </div>
           <div class="code-block">
@@ -750,7 +750,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.trest.me/history?limit=5"</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://tasqyn-api.onrender.com/history?limit=5"</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -778,7 +778,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-flag">-X</span> DELETE <span class="sh-url">https://api.trest.me/history</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-flag">-X</span> DELETE <span class="sh-url">https://tasqyn-api.onrender.com/history</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -816,7 +816,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/push/register</span> <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://tasqyn-api.onrender.com/push/register</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-d</span> <span class="sh-str">'{
     "token": "ExponentPushToken[xxx]",
