@@ -32,6 +32,7 @@
 }
 html{background:var(--doc-bg);scroll-behavior:smooth}
 body.docs-body{background:var(--doc-bg);color:var(--ink)}
+a:focus-visible,button:focus-visible{outline:2px solid var(--water);outline-offset:2px;border-radius:4px}
 
 /* ---- top bar ---- */
 .doc-top{position:sticky;top:0;z-index:60;background:rgba(255,255,255,.88);
@@ -146,7 +147,7 @@ pre::-webkit-scrollbar-thumb{background:#1d3e4f;border-radius:7px}
 code.json,code.sh{font-family:var(--mono)}
 .tk-key{color:var(--t-key)}.tk-str{color:var(--t-str)}.tk-num{color:var(--t-num)}
 .tk-bool{color:var(--t-bool)}.tk-punc{color:var(--t-punc)}.tk-com{color:#557082}
-.sh-cmd{color:#9fd8b0}.sh-flag{color:#f3b465}.sh-url{color:#7fd1ec}.sh-str{color:#cbdde8}
+.sh-cmd{color:#9fd8b0}.sh-flag{color:#f3b465}.sh-url{color:#7fd1ec}.sh-str{color:#cbdde8}.sh-punc{color:#6f93a6}
 .resp-line{display:flex;align-items:center;gap:9px;padding:9px 14px;background:var(--code-bg-2);
   border-bottom:1px solid #14303f;font-family:var(--mono);font-size:11.5px;color:#8fb0c2}
 .resp-200{color:#93dca7}.resp-4xx{color:#f0936b}
@@ -250,8 +251,8 @@ code.json,code.sh{font-family:var(--mono)}
         <h1 class="doc-h1">Flood probability, one HTTP call ahead.</h1>
         <p class="lede">The Tasqyn API turns hydro-meteorological observations into a calibrated
           <b>probability of spring flooding a month or more ahead</b> for snowmelt-driven river basins.
-          One trained XGBoost model, an honest walk-forward score of <b>ROC-AUC&nbsp;0.91</b>, a 90% prediction
-          interval on every forecast, and live multi-basin forecasting from open weather data.</p>
+          One trained XGBoost model, an honest walk-forward score of <b>ROC-AUC&nbsp;0.91</b>, a 90% confidence
+          interval where the ensemble is available, and live multi-basin forecasting from open weather data.</p>
         <div class="chip-row">
           <span class="c"><b>REST</b> · JSON over HTTPS</span>
           <span class="c"><b>6</b> basins</span>
@@ -285,7 +286,7 @@ code.json,code.sh{font-family:var(--mono)}
           <h2 class="doc-h2">Base URL</h2>
           <p>All endpoints are served from a single host and addressed by path. There is no resource
             prefix — paths such as <code>/predict</code> sit at the root.</p>
-          <div class="base-url"><b>POST</b> https://api.tasqyn.trest.me/predict</div>
+          <div class="base-url"><b>POST</b> https://api.trest.me/predict</div>
           <p style="margin-top:16px">Running the service yourself? The reference server is a FastAPI app
             (<code>uvicorn api.main:app</code>) that listens on <code>http://127.0.0.1:8000</code> by default
             and ships interactive Swagger UI at <code>/docs</code> and a raw schema at <code>/openapi.json</code>.</p>
@@ -320,7 +321,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Authenticated request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> https://api.tasqyn.trest.me/basins <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> https://api.trest.me/basins <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Authorization: Bearer $TASQYN_KEY"</span></code></pre>
           </div>
         </div>
@@ -414,7 +415,7 @@ code.json,code.sh{font-family:var(--mono)}
               <tr><td>is_flood_predicted</td><td class="ty">bool</td><td><code>true</code> when <code>flood_probability ≥ threshold</code>.</td></tr>
               <tr><td>in_flood_season</td><td class="ty">bool</td><td>Whether the month is in the basin's snowmelt season.</td></tr>
               <tr><td>reliability</td><td class="ty">object</td><td>Trust metadata — see <a href="#reliability" class="lnk">Reliability</a>.</td></tr>
-              <tr><td>provenance</td><td class="ty">string</td><td>How the inputs were obtained, e.g. <code>user-supplied</code> or <code>open-meteo-live</code>.</td></tr>
+              <tr><td>provenance</td><td class="ty">string</td><td>How the inputs were obtained: <code>user-supplied</code>, <code>observed</code> (live weather) or <code>climatology-filled</code>.</td></tr>
               <tr><td>basin_id / basin_label</td><td class="ty">string</td><td>Which basin the forecast is for. May be <code>null</code> for an unlabelled <code>/predict</code> call.</td></tr>
               <tr><td>year / month</td><td class="ty">int</td><td>The month the forecast applies to.</td></tr>
               <tr><td>model_version</td><td class="ty">string</td><td>Exact model that produced the forecast.</td></tr>
@@ -441,7 +442,7 @@ code.json,code.sh{font-family:var(--mono)}
   <span class="tk-key">"threshold"</span><span class="tk-punc">:</span> <span class="tk-num">0.5</span><span class="tk-punc">,</span>
   <span class="tk-key">"is_flood_predicted"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
   <span class="tk-key">"in_flood_season"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
-  <span class="tk-key">"provenance"</span><span class="tk-punc">:</span> <span class="tk-str">"open-meteo-live"</span><span class="tk-punc">,</span>
+  <span class="tk-key">"provenance"</span><span class="tk-punc">:</span> <span class="tk-str">"observed"</span><span class="tk-punc">,</span>
   <span class="tk-key">"reliability"</span><span class="tk-punc">:</span> <span class="tk-punc">{</span>
     <span class="tk-key">"in_distribution"</span><span class="tk-punc">:</span> <span class="tk-bool">true</span><span class="tk-punc">,</span>
     <span class="tk-key">"out_of_range_features"</span><span class="tk-punc">:</span> <span class="tk-punc">[]</span><span class="tk-punc">,</span>
@@ -475,7 +476,7 @@ code.json,code.sh{font-family:var(--mono)}
               <tr><td>river</td><td class="ty">string</td><td>River, e.g. <code>Ishim (Esil)</code>.</td></tr>
               <tr><td>country</td><td class="ty">string</td><td>ISO country, <code>KZ</code> or <code>RU</code>.</td></tr>
               <tr><td>latitude / longitude</td><td class="ty">float</td><td>Point used to query Open-Meteo.</td></tr>
-              <tr><td>flood_season</td><td class="ty">int[]</td><td>Months snowmelt flooding is plausible, e.g. <code>[3,4,5]</code>.</td></tr>
+              <tr><td>flood_season</td><td class="ty">int[]</td><td>Months when snowmelt flooding is plausible, e.g. <code>[3,4,5]</code>.</td></tr>
               <tr><td>is_anchor</td><td class="ty">bool</td><td><code>true</code> only for Petropavl.</td></tr>
               <tr><td>notes</td><td class="ty">string</td><td>Free-text context.</td></tr>
             </tbody>
@@ -560,7 +561,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/health</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/health</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -590,7 +591,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/basins</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/basins</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -642,7 +643,7 @@ code.json,code.sh{font-family:var(--mono)}
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/predict</span> <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/predict</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-d</span> <span class="sh-str">'{
     "basin_id": "petropavl",
@@ -676,7 +677,7 @@ code.json,code.sh{font-family:var(--mono)}
       <div class="split">
         <div>
           <div class="endpoint-head"><span class="m-tag m-get">GET</span><span class="path">/forecast/live</span></div>
-          <p>The high-level endpoint, and the one most clients use. Give it a basin and a horizon; Tasqyn
+          <p>The high-level endpoint, and the one most callers want. Give it a basin and a horizon; Tasqyn
             fetches live weather from the open Open-Meteo ERA5 archive (no key), builds the observation window
             for you, and returns a calibrated forecast for each of the next <code>horizon</code> months —
             each a full <a href="#forecast-object" class="lnk">Forecast</a> with a confidence interval.</p>
@@ -696,12 +697,14 @@ code.json,code.sh{font-family:var(--mono)}
           <p class="params-title">Returns</p>
           <p style="margin-top:8px">A <code>LiveForecastResponse</code>: the resolved
             <code>basin</code>, the <code>horizon</code>, and a <code>forecasts</code> array. Returns
-            <code>502</code> if live weather is unavailable.</p>
+            <code>502</code> if live weather is unavailable. When the live window can't be filled from
+            observations, missing months fall back to climatology and the forecast's <code>provenance</code>
+            is <code>climatology-filled</code>.</p>
         </div>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.tasqyn.trest.me/forecast/live?\
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.trest.me/forecast/live?\
 basin_id=oral&horizon=3"</span></code></pre>
           </div>
           <div class="code-block">
@@ -747,7 +750,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.tasqyn.trest.me/history?limit=5"</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-str">"https://api.trest.me/history?limit=5"</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -775,7 +778,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-flag">-X</span> DELETE <span class="sh-url">https://api.tasqyn.trest.me/history</span></code></pre>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-flag">-X</span> DELETE <span class="sh-url">https://api.trest.me/history</span></code></pre>
           </div>
           <div class="code-block">
             <div class="resp-line"><span class="resp-200">●</span> 200 OK</div>
@@ -813,7 +816,7 @@ basin_id=oral&horizon=3"</span></code></pre>
         <div class="code-col">
           <div class="code-block">
             <div class="code-head"><span class="ct">Request</span><button class="copy">Copy</button></div>
-<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.tasqyn.trest.me/push/register</span> <span class="sh-punc">\</span>
+<pre><code class="sh"><span class="sh-cmd">curl</span> <span class="sh-url">https://api.trest.me/push/register</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-H</span> <span class="sh-str">"Content-Type: application/json"</span> <span class="sh-punc">\</span>
   <span class="sh-flag">-d</span> <span class="sh-str">'{
     "token": "ExponentPushToken[xxx]",
@@ -896,7 +899,7 @@ basin_id=oral&horizon=3"</span></code></pre>
             <thead><tr><th>Label</th><th>Probability</th><th>Color</th></tr></thead>
             <tbody>
               <tr><td>low</td><td class="ty">&lt; 0.33</td><td><code>#22c55e</code> green</td></tr>
-              <tr><td>moderate</td><td class="ty">0.33 – 0.66</td><td><code>#f59e0b</code> amber</td></tr>
+              <tr><td>moderate</td><td class="ty">0.33 – &lt; 0.66</td><td><code>#f59e0b</code> amber</td></tr>
               <tr><td>high</td><td class="ty">≥ 0.66</td><td><code>#ef4444</code> red</td></tr>
             </tbody>
           </table>
