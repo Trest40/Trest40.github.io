@@ -18,20 +18,23 @@
 
 *{box-sizing:border-box}
 html{scroll-behavior:smooth}
+html,body{overflow-x:hidden;max-width:100%}
 body{
   margin:0;background:var(--paper);color:var(--ink);
   font-family:var(--sans);line-height:1.6;-webkit-font-smoothing:antialiased;
 }
+/* never let a long word or heading push past the screen edge */
+.intro,.item h2,.item h3,.item p,.meta,.who{overflow-wrap:break-word;word-break:break-word}
 a{color:inherit;text-decoration:none}
 
 /* ---- header: just the wordmark, top-left ---- */
 .top{position:sticky;top:0;z-index:20;background:rgba(244,242,236,.86);
   backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-.top .row{width:min(720px,90vw);margin:0 auto;height:68px;display:flex;align-items:center}
-.wordmark{display:inline-flex;align-items:center;gap:10px;color:var(--ink)}
+.top .row{width:min(720px,90vw);margin:0 auto;height:68px;display:flex;align-items:center;max-width:100%}
+.wordmark{display:inline-flex;align-items:center;gap:10px;color:var(--ink);min-width:0}
 .wordmark .mark{width:28px;height:28px;display:block;flex:none}
 .wordmark .wm-text{font-family:var(--display);font-optical-sizing:auto;font-weight:500;
-  font-size:23px;letter-spacing:-.01em}
+  font-size:23px;letter-spacing:-.01em;white-space:nowrap}
 
 /* ---- main column ---- */
 main{width:min(720px,90vw);margin:0 auto;padding:64px 0 0}
